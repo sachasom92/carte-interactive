@@ -5,180 +5,255 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nos endroits</title>
 
-<!-- Leaflet CSS -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<!-- Leaflet MarkerCluster CSS -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
 
 <style>
-  * {
-    box-sizing: border-box;
-  }
+  * { box-sizing: border-box; }
 
   body {
     margin: 0;
     font-family: 'Segoe UI', Roboto, Arial, sans-serif;
     background: #1a1a2e;
+    overflow-x: hidden;
   }
 
   header {
     background: linear-gradient(135deg, #d63384, #6f42c1);
     color: white;
     text-align: center;
-    padding: 20px 10px;
+    padding: 16px 10px 10px;
   }
 
-  header h1 {
-    margin: 0;
-    font-size: 1.8em;
-  }
+  header h1 { margin: 0; font-size: 1.8em; }
+  header p { margin: 5px 0 8px; opacity: 0.9; font-size: 0.95em; }
 
-  header p {
-    margin: 5px 0 0;
-    opacity: 0.9;
+  #compteur {
     font-size: 0.95em;
+    font-weight: 600;
+    background: rgba(255,255,255,0.15);
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 20px;
+    margin-top: 4px;
   }
 
-  #map {
-    height: calc(100vh - 95px);
-    width: 100%;
-  }
-
-  /* Style des popups */
-  .leaflet-popup-content-wrapper {
-    border-radius: 12px;
-    padding: 0;
-    overflow: hidden;
-  }
-
-  .leaflet-popup-content {
-    margin: 0;
-    width: 280px !important;
-  }
-
-  .popup-inner {
-    padding: 15px;
-  }
-
-  .popup-inner h3 {
-    margin: 0 0 8px;
-    color: #d63384;
-    font-size: 1.2em;
-  }
-
-  .popup-inner p {
-    margin: 0 0 10px;
-    color: #333;
-    font-size: 0.9em;
-    line-height: 1.4;
-  }
-
-  .popup-photos {
+  #filtres {
     display: flex;
+    flex-wrap: wrap;
     gap: 6px;
-    overflow-x: auto;
-    padding-bottom: 4px;
-  }
-
-  .popup-photos img {
-    width: 90px;
-    height: 90px;
-    object-fit: cover;
-    border-radius: 8px;
-    flex-shrink: 0;
-    cursor: pointer;
-    transition: transform 0.15s;
-  }
-
-  .popup-photos img:hover {
-    transform: scale(1.05);
-  }
-
-  .popup-date {
-    font-size: 0.75em;
-    color: #999;
-    margin-top: 6px;
-  }
-
-  /* Lightbox pour agrandir les photos */
-  #lightbox {
-    display: none;
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(0,0,0,0.9);
-    z-index: 9999;
-    align-items: center;
     justify-content: center;
+    padding: 8px 10px;
+    background: #16162a;
+  }
+
+  .filtre-btn {
+    border: none;
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 0.8em;
+    cursor: pointer;
+    background: #2d2d4d;
+    color: #ccc;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  .filtre-btn.actif { background: #d63384; color: white; }
+
+  #bouton-histoire {
+    border: none;
+    padding: 6px 14px;
+    border-radius: 16px;
+    font-size: 0.8em;
+    cursor: pointer;
+    background: linear-gradient(135deg, #6f42c1, #d63384);
+    color: white;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  #map { height: calc(100vh - 175px); width: 100%; }
+
+  #frise-container {
+    background: #16162a;
+    padding: 10px 0;
+    overflow-x: auto;
+    white-space: nowrap;
+    border-top: 1px solid #2d2d4d;
+  }
+
+  #frise { display: inline-flex; gap: 4px; padding: 0 12px; }
+
+  .frise-point {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    min-width: 70px;
+    padding: 4px 6px;
+    border-radius: 8px;
+    transition: background 0.15s;
+  }
+
+  .frise-point:hover { background: rgba(255,255,255,0.08); }
+  .frise-emoji { font-size: 1.3em; margin-bottom: 2px; }
+  .frise-date { font-size: 0.65em; color: #999; text-align: center; }
+  .frise-ligne { height: 2px; background: #444; position: relative; top: -22px; z-index: -1; }
+
+  .leaflet-popup-content-wrapper { border-radius: 12px; padding: 0; overflow: hidden; }
+  .leaflet-popup-content { margin: 0; width: 280px !important; }
+  .popup-inner { padding: 15px; }
+  .popup-inner h3 { margin: 0 0 8px; color: #d63384; font-size: 1.2em; }
+  .popup-inner p { margin: 0 0 10px; color: #333; font-size: 0.9em; line-height: 1.4; }
+
+  .popup-photos { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; }
+  .popup-photos img {
+    width: 90px; height: 90px; object-fit: cover; border-radius: 8px;
+    flex-shrink: 0; cursor: pointer; transition: transform 0.15s;
+  }
+  .popup-photos img:hover { transform: scale(1.05); }
+  .popup-date { font-size: 0.75em; color: #999; margin-top: 6px; }
+
+  #lightbox {
+    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.9); z-index: 9999; align-items: center; justify-content: center;
     cursor: zoom-out;
   }
+  #lightbox img { max-width: 90%; max-height: 90%; border-radius: 8px; }
 
-  #lightbox img {
-    max-width: 90%;
-    max-height: 90%;
-    border-radius: 8px;
-  }
-
-  /* Style custom du cluster */
   .marker-cluster-custom {
     background: rgba(214, 51, 132, 0.7);
-    border-radius: 50%;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
+    border-radius: 50%; color: white; display: flex;
+    align-items: center; justify-content: center; font-weight: bold;
     border: 3px solid rgba(214, 51, 132, 0.4);
   }
 
-  /* Style des markers avec emoji */
   .emoji-marker {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 38px;
-    height: 38px;
-    border-radius: 50% 50% 50% 0;
-    transform: rotate(45deg);
-    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    display: flex; align-items: center; justify-content: center;
+    width: 38px; height: 38px; border-radius: 50% 50% 50% 0;
+    transform: rotate(45deg); box-shadow: 0 2px 6px rgba(0,0,0,0.4);
     border: 2px solid white;
   }
+  .emoji-marker span { transform: rotate(-45deg); font-size: 18px; }
 
-  .emoji-marker span {
-    transform: rotate(-45deg);
-    font-size: 18px;
+  #overlay-anniv {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(10,10,25,0.92); z-index: 10000;
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+
+  #carte-anniv {
+    background: linear-gradient(160deg, #2d1b4e, #4a1942);
+    border-radius: 20px;
+    padding: 36px 28px;
+    max-width: 420px;
+    text-align: center;
+    color: white;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    border: 1px solid rgba(255,255,255,0.15);
+    animation: popIn 0.5s ease;
+  }
+
+  @keyframes popIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  #carte-anniv h2 { margin: 0 0 14px; font-size: 1.5em; }
+
+  #carte-anniv p {
+    line-height: 1.6;
+    font-size: 0.95em;
+    opacity: 0.95;
+    margin-bottom: 22px;
+    white-space: pre-line;
+  }
+
+  #carte-anniv button {
+    background: linear-gradient(135deg, #d63384, #6f42c1);
+    border: none;
+    color: white;
+    padding: 12px 28px;
+    border-radius: 24px;
+    font-size: 0.95em;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .particule {
+    position: fixed;
+    top: -30px;
+    font-size: 22px;
+    z-index: 10001;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  @keyframes tomber {
+    to { transform: translateY(110vh) rotate(360deg); opacity: 0.2; }
   }
 </style>
 </head>
 <body>
 
+<div id="overlay-anniv">
+  <div id="carte-anniv">
+    <h2>🎉 Joyeux anniversaire ❤️</h2>
+    <p id="texte-anniv">Voici tous les endroits qu'on a parcourus ensemble.
+Chaque point sur cette carte, c'est un souvenir, un fou rire, une balade, ou juste un moment tranquille avec toi.
+
+Je suis hyper heureux de tout ce qu'on a construit et j'ai hâte de continuer à remplir cette carte avec toi 🥹
+
+Joyeux anniversaire mon amour 💕</p>
+    <button onclick="fermerAnniv()">Découvrir la carte 🗺️</button>
+  </div>
+</div>
+
 <header>
   <h1>❤️ Nos endroits ❤️</h1>
-  <p>Tous les lieux qu'on a explorés ensemble (Joyeux anniversaire 🥳)</p>
+  <p>Tous les lieux qu'on a explorés ensemble</p>
+  <div id="compteur">Chargement...</div>
 </header>
 
+<div id="filtres"></div>
+
 <div id="map"></div>
+
+<div id="frise-container">
+  <div id="frise"></div>
+</div>
+
 <div id="lightbox"><img id="lightbox-img" src="" alt=""></div>
 
-<!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<!-- Leaflet MarkerCluster JS -->
 <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 
 <script>
-  // ============================================
-  // CATÉGORIES → emoji + couleur
-  // ============================================
+  const DATE_DEBUT = new Date(2025, 11, 12); // 12 décembre 2025
+
+  function majCompteur() {
+    const maintenant = new Date();
+    const diffMs = maintenant - DATE_DEBUT;
+    const jours = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    document.getElementById('compteur').textContent =
+      diffMs >= 0 ? `Ensemble depuis ${jours} jour${jours > 1 ? 's' : ''} ❤️` : `Compte à rebours avant nous 💕`;
+  }
+  majCompteur();
+
   const categories = {
-    voyage:   { emoji: "✈️", couleur: "#6f42c1" },
-    balade:   { emoji: "🚶", couleur: "#20c997" },
-    amour:    { emoji: "❤️", couleur: "#d63384" },
-    nature:   { emoji: "🌳", couleur: "#28a745" },
-    shopping: { emoji: "🛍️", couleur: "#fd7e14" },
-    resto:    { emoji: "🍽️", couleur: "#e83e8c" },
-    maison:   { emoji: "🏠", couleur: "#0d6efd" },
-    defaut:   { emoji: "📍", couleur: "#6c757d" }
+    voyage:   { emoji: "✈️", couleur: "#6f42c1", label: "Voyages" },
+    balade:   { emoji: "🚶", couleur: "#20c997", label: "Balades" },
+    amour:    { emoji: "❤️", couleur: "#d63384", label: "Amour" },
+    nature:   { emoji: "🌳", couleur: "#28a745", label: "Nature" },
+    shopping: { emoji: "🛍️", couleur: "#fd7e14", label: "Shopping" },
+    resto:    { emoji: "🍽️", couleur: "#e83e8c", label: "Restos" },
+    maison:   { emoji: "🏠", couleur: "#0d6efd", label: "Maison" },
+    "activité": { emoji: "🎮", couleur: "#ffc107", label: "Activités" },
+    pet:      { emoji: "😂", couleur: "#17a2b8", label: "Fous rires" },
+    defaut:   { emoji: "📍", couleur: "#6c757d", label: "Autres" }
   };
 
   function creerIconeEmoji(categorie) {
@@ -192,261 +267,105 @@
     });
   }
 
-  // ============================================
-  // DONNÉES DES LIEUX
-  // ============================================
   const lieux = [
-    {
-      nom: "Paris",
-      lat: 48.8566,
-      lng: 2.3522,
-      categorie: "balade",
+    { nom: "Paris", lat: 48.8566, lng: 2.3522, categorie: "balade",
       description: "On a marché des heures le long de la Seine. C'est un peu la ou on appris à se connaitre :)",
-      date: "Mars & Avril 2025",
-      photos: [
-        "https://picsum.photos/seed/paris1/300/300",
-        "https://picsum.photos/seed/paris2/300/300",
-        "https://picsum.photos/seed/paris3/300/300"
-      ]
-    },
-    {
-      nom: "Louvre",
-      lat: 48.8611473,
-      lng: 2.3380277,
-      categorie: "",
+      date: "Mars & Avril 2025", dateOrdre: new Date(2025, 2, 1),
+      photos: ["https://picsum.photos/seed/paris1/300/300","https://picsum.photos/seed/paris2/300/300","https://picsum.photos/seed/paris3/300/300"] },
+
+    { nom: "Louvre", lat: 48.8611473, lng: 2.3380277, categorie: "balade",
       description: "On a dansé le rock ensemble 🤘. Et c'était une belle soirée ensemble",
-      date: "Juin 2023",
-      photos: [
-        "https://picsum.photos/seed/paris1/300/300",
-        "https://picsum.photos/seed/paris2/300/300",
-        "https://picsum.photos/seed/paris3/300/300"
-      ]
-    },
-    {
-      nom: "Bezons",
-      lat: 48.9269531,
-      lng: 2.2074624,
-      categorie: "maison",
+      date: "Juin 2023", dateOrdre: new Date(2023, 5, 1),
+      photos: ["https://picsum.photos/seed/paris1/300/300","https://picsum.photos/seed/paris2/300/300","https://picsum.photos/seed/paris3/300/300"] },
+
+    { nom: "Bezons", lat: 48.9269531, lng: 2.2074624, categorie: "maison",
       description: "Le plus gros coup de stress ever pour toi 😂. On y a aussi passé une soirée ou tu revisais a 3h du mat👀😂. Et il y a pas longtemps tu as même rencontrer ma mère ici 😮",
-      date: "Intemporel",
-      photos: [
-        "https://picsum.photos/seed/paris1/300/300",
-        "https://picsum.photos/seed/paris2/300/300",
-        "https://picsum.photos/seed/paris3/300/300"
-      ]
-    },
-    {
-      nom: "Fontaine des Innocents",
-      lat: 48.86066818237305,
-      lng: 2.3480160236358643,
-      categorie: "balade",
+      date: "Intemporel", dateOrdre: new Date(2024, 0, 1),
+      photos: ["https://picsum.photos/seed/paris1/300/300","https://picsum.photos/seed/paris2/300/300","https://picsum.photos/seed/paris3/300/300"] },
+
+    { nom: "Fontaine des Innocents", lat: 48.86066818237305, lng: 2.3480160236358643, categorie: "balade",
       description: "Notre point de RDV pour marcher sur paris :)",
-      date: "Mars 2025",
-      photos: [
-        "https://picsum.photos/seed/paris1/300/300",
-        "https://picsum.photos/seed/paris2/300/300",
-        "https://picsum.photos/seed/paris3/300/300"
-      ]
-    },
-    {
-      nom: "Karting",
-      lat: 49.103879,
-      lng: 2.0366313,
-      categorie: "activité",
+      date: "Mars 2025", dateOrdre: new Date(2025, 2, 5),
+      photos: ["https://picsum.photos/seed/paris1/300/300","https://picsum.photos/seed/paris2/300/300","https://picsum.photos/seed/paris3/300/300"] },
+
+    { nom: "Karting", lat: 49.103879, lng: 2.0366313, categorie: "activité",
       description: "Petit karting tranquillou. La première vrai rencontre de Adrien et Olivia aussi.",
-      date: "Aout 2026",
-      photos: [
-        "https://picsum.photos/seed/paris1/300/300",
-        "https://picsum.photos/seed/paris2/300/300",
-        "https://picsum.photos/seed/paris3/300/300"
-      ]
-    },
-     {
-      nom: "Vidéo des pets",
-      lat: 62.25322497404464,
-      lng: 25.702218017155563,
-      categorie: "pet",
+      date: "Aout 2026", dateOrdre: new Date(2026, 7, 1),
+      photos: ["https://picsum.photos/seed/paris1/300/300","https://picsum.photos/seed/paris2/300/300","https://picsum.photos/seed/paris3/300/300"] },
+
+    { nom: "Vidéo des pets", lat: 62.25322497404464, lng: 25.702218017155563, categorie: "pet",
       description: "Moment très marquant pris en vidéo et qui restera hilarant à jamais",
-      date: "Mai 2026",
-      photos: [
-        "https://picsum.photos/seed/paris1/300/300",
-        "https://picsum.photos/seed/paris2/300/300",
-        "https://picsum.photos/seed/paris3/300/300"
-      ]
-    },
-    {
-      nom: "Fuji",
-      lat: 48.7916328,
-      lng: 2.5133038,
-      categorie: "resto",
+      date: "Mai 2026", dateOrdre: new Date(2026, 4, 1),
+      photos: ["https://picsum.photos/seed/paris1/300/300","https://picsum.photos/seed/paris2/300/300","https://picsum.photos/seed/paris3/300/300"] },
+
+    { nom: "Fuji", lat: 48.7916328, lng: 2.5133038, categorie: "resto",
       description: "Notre sushi pref de saint maur, une valeure sure finalement ! (sauf quand tu te sens mal après 😞)",
-      date: "Indémodable",
-      photos: [
-        "https://picsum.photos/seed/paris1/300/300",
-        "https://picsum.photos/seed/paris2/300/300",
-        "https://picsum.photos/seed/paris3/300/300"
-      ]
-    },
-    {
-      nom: "Bowling",
-      lat: 48.856863531656,
-      lng: 2.354372359918173,
-      categorie: "activité",
+      date: "Indémodable", dateOrdre: new Date(2024, 5, 1),
+      photos: ["https://picsum.photos/seed/paris1/300/300","https://picsum.photos/seed/paris2/300/300","https://picsum.photos/seed/paris3/300/300"] },
+
+    { nom: "Bowling", lat: 48.856863531656, lng: 2.354372359918173, categorie: "activité",
       description: "Notre première activité tous les deux !!",
-      date: "Février 2025",
-      photos: [
-        "https://picsum.photos/seed/paris1/300/300",
-        "https://picsum.photos/seed/paris2/300/300",
-        "https://picsum.photos/seed/paris3/300/300"
-      ]
-    },
-    {
-      nom: "Aquarium",
-      lat: 48.8333192,
-      lng: 2.4165249,
-      categorie: "activité",
+      date: "Février 2025", dateOrdre: new Date(2025, 1, 1),
+      photos: ["https://picsum.photos/seed/paris1/300/300","https://picsum.photos/seed/paris2/300/300","https://picsum.photos/seed/paris3/300/300"] },
+
+    { nom: "Aquarium", lat: 48.8333192, lng: 2.4165249, categorie: "activité",
       description: "Dans nos premières acitivité. On avait galérer à trouver l'entrée et on a surtout trouver un poisson qui pouvait remplacer nos gif de poissons rouges. Malheureusement ou heureusement on l'utilise plus 😂",
-      date: "Mars 2025",
-      photos: [
-        "https://picsum.photos/seed/paris1/300/300",
-        "https://picsum.photos/seed/paris2/300/300",
-        "https://picsum.photos/seed/paris3/300/300"
-      ]
-    },
-    {
-      nom: "Appart de Champigny",
-      lat: 48.8123457,
-      lng: 2.5093782,
-      categorie: "amour",
+      date: "Mars 2025", dateOrdre: new Date(2025, 2, 10),
+      photos: ["https://picsum.photos/seed/paris1/300/300","https://picsum.photos/seed/paris2/300/300","https://picsum.photos/seed/paris3/300/300"] },
+
+    { nom: "Appart de Champigny", lat: 48.8123457, lng: 2.5093782, categorie: "amour",
       description: "Notre endroit tranquille pour se retrouver sans être dérangé. L'endroit où on s'est mis en couple ❤️ et le premier bisou 👀",
-      date: "Décembre 2025",
-      photos: [
-        "https://picsum.photos/seed/paris1/300/300",
-        "https://picsum.photos/seed/paris2/300/300",
-        "https://picsum.photos/seed/paris3/300/300"
-      ]
-    },
-    {
-      nom: "Jyvaskyla",
-      lat: 62.241672,
-      lng: 25.7495806,
-      categorie: "voyage",
+      date: "Décembre 2025", dateOrdre: new Date(2025, 11, 12),
+      photos: ["https://picsum.photos/seed/paris1/300/300","https://picsum.photos/seed/paris2/300/300","https://picsum.photos/seed/paris3/300/300"] },
+
+    { nom: "Jyvaskyla", lat: 62.241672, lng: 25.7495806, categorie: "voyage",
       description: "Notre premier voyage ensemble ! ",
-      date: "Avril & Mai 2025",
-      photos: [
-        "https://picsum.photos/seed/paris1/300/300",
-        "https://picsum.photos/seed/paris2/300/300",
-        "https://picsum.photos/seed/paris3/300/300"
-      ]
-    },
-    {
-      nom: "Lac de Jyvaskyla",
-      lat: 62.25114754781425,
-      lng: 25.72139411775907,
-      categorie: "nature",
+      date: "Avril & Mai 2025", dateOrdre: new Date(2025, 3, 15),
+      photos: ["https://picsum.photos/seed/paris1/300/300","https://picsum.photos/seed/paris2/300/300","https://picsum.photos/seed/paris3/300/300"] },
+
+    { nom: "Lac de Jyvaskyla", lat: 62.25114754781425, lng: 25.72139411775907, categorie: "nature",
       description: "Endroit ou tu as failli perdre tes pieds, mais c'est ok c'était un bon moment. Et on a fait des belles balades et des belels pohtos👀",
-      date: "Avril 2025",
-      photos: [
-        "https://picsum.photos/seed/paris1/300/300",
-        "https://picsum.photos/seed/paris2/300/300",
-        "https://picsum.photos/seed/paris3/300/300"
-      ]
-    },
-    {
-      nom: "La Défense",
-      lat: 48.890106201171875,
-      lng: 2.237318515777588,
-      categorie: "shopping",
+      date: "Avril 2025", dateOrdre: new Date(2025, 3, 16),
+      photos: ["https://picsum.photos/seed/paris1/300/300","https://picsum.photos/seed/paris2/300/300","https://picsum.photos/seed/paris3/300/300"] },
+
+    { nom: "La Défense", lat: 48.890106201171875, lng: 2.237318515777588, categorie: "shopping",
       description: "La ou tu connais toutes les boutiques plus que moi alors que ca fait 17 ans que je vis la 😂. Mais on est sacrément efficace dans les magasins en tout cas. ",
-      date: "Toute periode",
-      photos: [
-        "https://picsum.photos/seed/paris1/300/300",
-        "https://picsum.photos/seed/paris2/300/300",
-        "https://picsum.photos/seed/paris3/300/300"
-      ]
-    },
-    {
-      nom: "Le Sola",
-      lat: 48.89030075073242,
-      lng: 2.237520217895508,
-      categorie: "resto",
+      date: "Toute periode", dateOrdre: new Date(2024, 8, 1),
+      photos: ["https://picsum.photos/seed/paris1/300/300","https://picsum.photos/seed/paris2/300/300","https://picsum.photos/seed/paris3/300/300"] },
+
+    { nom: "Le Sola", lat: 48.89030075073242, lng: 2.237520217895508, categorie: "resto",
       description: "Notre petit resto quand on fait des dates a La Defense. Les gens à coté ecoutent nos discussion mais on a appris a s'en foutre. Par contre ce qu'on a pas appris c'est a bien dire le nom  des plats (surtout toi 😂)",
-      date: "Indémodable",
-      photos: [
-        "https://picsum.photos/seed/paris1/300/300",
-        "https://picsum.photos/seed/paris2/300/300",
-        "https://picsum.photos/seed/paris3/300/300"
-      ]
-    },
-    {
-      nom: "Sushi Tokyo",
-      lat: 48.8979547,
-      lng: 2.2362167,
-      categorie: "resto",
+      date: "Indémodable", dateOrdre: new Date(2024, 9, 1),
+      photos: ["https://picsum.photos/seed/paris1/300/300","https://picsum.photos/seed/paris2/300/300","https://picsum.photos/seed/paris3/300/300"] },
+
+    { nom: "Sushi Tokyo", lat: 48.8979547, lng: 2.2362167, categorie: "resto",
       description: "Notre japonais préféré à la défense (c'est pratique il est pres). Ils doivent nous connaitre par coeur. 'Deux menus étudiants svp' 😂",
-      date: "Indémodable",
-      photos: [
-        "https://picsum.photos/seed/paris1/300/300",
-        "https://picsum.photos/seed/paris2/300/300",
-        "https://picsum.photos/seed/paris3/300/300"
-      ]
-    },
-    {
-      nom: "Chez moi courbevoie",
-      lat: 48.897666931152344,
-      lng: 2.235090732574463,
-      categorie: "maison",
+      date: "Indémodable", dateOrdre: new Date(2024, 10, 1),
+      photos: ["https://picsum.photos/seed/paris1/300/300","https://picsum.photos/seed/paris2/300/300","https://picsum.photos/seed/paris3/300/300"] },
+
+    { nom: "Chez moi courbevoie", lat: 48.897666931152344, lng: 2.235090732574463, categorie: "maison",
       description: "Un des endroit ou j'habite ou on a passé pas mal de temps et c'est pas pres de changer 👀 c'est souvent le bordel quand tu viens mais j'assume et de toute façon on pas d'yeux pour ca mais pour autre chose.",
-      date: "encore la pour longtemps",
-      photos: [
-        "https://picsum.photos/seed/paris1/300/300",
-        "https://picsum.photos/seed/paris2/300/300",
-        "https://picsum.photos/seed/paris3/300/300"
-      ]
-    },
-    {
-      nom: "Chez toi",
-      lat: 48.803279876708984,
-      lng: 2.507655382156372,
-      categorie: "maison",
+      date: "encore la pour longtemps", dateOrdre: new Date(2024, 11, 1),
+      photos: ["https://picsum.photos/seed/paris1/300/300","https://picsum.photos/seed/paris2/300/300","https://picsum.photos/seed/paris3/300/300"] },
+
+    { nom: "Chez toi", lat: 48.803279876708984, lng: 2.507655382156372, categorie: "maison",
       description: "Pas grand chose a dire à part que c'est trop bien de pouvoir passer plusieurs jours avec toi la bas 👀 (et trop mimi la Elfie)",
-      date: "intemporel",
-      photos: [
-        "https://picsum.photos/seed/paris1/300/300",
-        "https://picsum.photos/seed/paris2/300/300",
-        "https://picsum.photos/seed/paris3/300/300"
-      ]
-    },
-    {
-      nom: "BDM",
-      lat: 48.80939140743179,
-      lng: 2.51128620160308,
-      categorie: "nature",
+      date: "intemporel", dateOrdre: new Date(2024, 6, 1),
+      photos: ["https://picsum.photos/seed/paris1/300/300","https://picsum.photos/seed/paris2/300/300","https://picsum.photos/seed/paris3/300/300"] },
+
+    { nom: "BDM", lat: 48.80939140743179, lng: 2.51128620160308, categorie: "nature",
       description: "Personne à part nous deux dis 'BDM' mais c'est ok. Endroit ou on a fait des longues balade très sympa. Bien sur du paddle aussi ou on a notre petit coin secret 🤫. On a aussi le banc caché et debvant la maison qu'on aime bien :) Enfin bref pleins de coins sympa et de bons souvenirs. Et c'est pas pres de s'arreter. ",
-      date: "depuis longtemps et pour longtemps",
-      photos: [
-        "https://picsum.photos/seed/rome1/300/300",
-        "https://picsum.photos/seed/rome2/300/300"
-      ]
-    },
-    {
-      nom: "Chez Cédric",
-      lat: 48.7944025,
-      lng: 2.5130777,
-      categorie: "amour",
+      date: "depuis longtemps et pour longtemps", dateOrdre: new Date(2024, 4, 1),
+      photos: ["https://picsum.photos/seed/rome1/300/300","https://picsum.photos/seed/rome2/300/300"] },
+
+    { nom: "Chez Cédric", lat: 48.7944025, lng: 2.5130777, categorie: "amour",
       description: "Première fois qu'on s'est rencontré à l'anniversaire de Cédric et depuis on s'est plus jamais laché 👀",
-      date: "Mars 2024",
-      photos: [
-        "https://raw.githubusercontent.com/sachasom/carte-interactive/main/photos/photo1.jpg",
-        "https://picsum.photos/seed/lisbonne2/300/300",
-        "https://picsum.photos/seed/lisbonne3/300/300"
-      ]
-    }
+      date: "Mars 2024", dateOrdre: new Date(2024, 2, 1),
+      photos: ["https://raw.githubusercontent.com/sachasom/carte-interactive/main/photos/photo1.jpg","https://picsum.photos/seed/lisbonne2/300/300","https://picsum.photos/seed/lisbonne3/300/300"] }
   ];
 
-  // ============================================
-  // INITIALISATION DE LA CARTE
-  // ============================================
+  const lieuxTries = [...lieux].sort((a, b) => a.dateOrdre - b.dateOrdre);
+
   const map = L.map('map').setView([46.0, 5.0], 4);
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -454,7 +373,6 @@
     maxZoom: 19
   }).addTo(map);
 
-  // Groupe de clustering
   const markers = L.markerClusterGroup({
     iconCreateFunction: function(cluster) {
       const count = cluster.getChildCount();
@@ -466,13 +384,10 @@
     }
   });
 
-  // ============================================
-  // CRÉATION DES MARKERS
-  // ============================================
+  const markersParLieu = new Map();
+
   lieux.forEach(lieu => {
-    const marker = L.marker([lieu.lat, lieu.lng], {
-      icon: creerIconeEmoji(lieu.categorie)
-    });
+    const marker = L.marker([lieu.lat, lieu.lng], { icon: creerIconeEmoji(lieu.categorie) });
 
     const photosHtml = lieu.photos
       .map(src => `<img src="${src}" onclick="openLightbox('${src}')" alt="${lieu.nom}">`)
@@ -489,21 +404,127 @@
 
     marker.bindPopup(popupContent);
     markers.addLayer(marker);
+    markersParLieu.set(lieu, marker);
   });
 
   map.addLayer(markers);
 
-  // ============================================
-  // LIGHTBOX (agrandir une photo au clic)
-  // ============================================
+  const filtresContainer = document.getElementById('filtres');
+
+  function construireFiltres() {
+    const catsPresentes = [...new Set(lieux.map(l => l.categorie || 'defaut'))];
+
+    const btnTous = document.createElement('button');
+    btnTous.className = 'filtre-btn actif';
+    btnTous.textContent = 'Tous';
+    btnTous.onclick = () => appliquerFiltre('tous', btnTous);
+    filtresContainer.appendChild(btnTous);
+
+    catsPresentes.forEach(catKey => {
+      const cat = categories[catKey] || categories.defaut;
+      const btn = document.createElement('button');
+      btn.className = 'filtre-btn';
+      btn.textContent = `${cat.emoji} ${cat.label}`;
+      btn.onclick = () => appliquerFiltre(catKey, btn);
+      filtresContainer.appendChild(btn);
+    });
+  }
+
+  function appliquerFiltre(catKey, btnClique) {
+    document.querySelectorAll('.filtre-btn').forEach(b => b.classList.remove('actif'));
+    btnClique.classList.add('actif');
+
+    markers.clearLayers();
+    lieux.forEach(lieu => {
+      const cat = lieu.categorie || 'defaut';
+      if (catKey === 'tous' || cat === catKey) {
+        markers.addLayer(markersParLieu.get(lieu));
+      }
+    });
+  }
+
+  construireFiltres();
+
+  const btnHistoire = document.createElement('button');
+  btnHistoire.id = 'bouton-histoire';
+  btnHistoire.textContent = '▶️ Revivre notre histoire';
+  btnHistoire.onclick = lancerModeHistoire;
+  filtresContainer.appendChild(btnHistoire);
+
+  function lancerModeHistoire() {
+    appliquerFiltre('tous', filtresContainer.querySelector('.filtre-btn'));
+
+    let i = 0;
+    btnHistoire.disabled = true;
+    btnHistoire.textContent = '⏸️ Histoire en cours...';
+
+    function etapeSuivante() {
+      if (i >= lieuxTries.length) {
+        btnHistoire.disabled = false;
+        btnHistoire.textContent = '▶️ Revivre notre histoire';
+        return;
+      }
+      const lieu = lieuxTries[i];
+      const marker = markersParLieu.get(lieu);
+      map.flyTo([lieu.lat, lieu.lng], 13, { duration: 1.2 });
+      setTimeout(() => { marker.openPopup(); }, 1300);
+      i++;
+      setTimeout(etapeSuivante, 3200);
+    }
+    etapeSuivante();
+  }
+
+  const frise = document.getElementById('frise');
+
+  lieuxTries.forEach(lieu => {
+    const cat = categories[lieu.categorie] || categories.defaut;
+    const point = document.createElement('div');
+    point.className = 'frise-point';
+    point.innerHTML = `
+      <div class="frise-emoji">${cat.emoji}</div>
+      <div class="frise-ligne"></div>
+      <div class="frise-date">${lieu.nom}</div>
+    `;
+    point.onclick = () => {
+      const marker = markersParLieu.get(lieu);
+      map.flyTo([lieu.lat, lieu.lng], 13, { duration: 1 });
+      setTimeout(() => marker.openPopup(), 1000);
+    };
+    frise.appendChild(point);
+  });
+
   function openLightbox(src) {
     document.getElementById('lightbox-img').src = src;
     document.getElementById('lightbox').style.display = 'flex';
   }
-
   document.getElementById('lightbox').addEventListener('click', () => {
     document.getElementById('lightbox').style.display = 'none';
   });
+
+  function fermerAnniv() {
+    document.getElementById('overlay-anniv').style.display = 'none';
+  }
+
+  function lancerParticules() {
+    const emojis = ['🎉', '❤️', '💕', '✨', '🎊'];
+    const total = 40;
+
+    for (let i = 0; i < total; i++) {
+      setTimeout(() => {
+        const p = document.createElement('div');
+        p.className = 'particule';
+        p.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        p.style.left = Math.random() * 100 + 'vw';
+        const duree = 3 + Math.random() * 2;
+        p.style.animation = `tomber ${duree}s linear forwards`;
+        p.style.fontSize = (16 + Math.random() * 16) + 'px';
+        document.body.appendChild(p);
+        setTimeout(() => p.remove(), duree * 1000 + 200);
+      }, i * 60);
+    }
+  }
+
+  lancerParticules();
 </script>
 
 </body>
