@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nos endroits</title>
+
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<!-- Leaflet MarkerCluster CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+
+<style>
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+    background: #1a1a2e;
+  }
+
+  header {
+    background: linear-gradient(135deg, #d63384, #6f42c1);
+    color: white;
+    text-align: center;
+    padding: 20px 10px;
+  }
+
+  header h1 {
+    margin: 0;
+    font-size: 1.8em;
+  }
+
+  header p {
+    margin: 5px 0 0;
+    opacity: 0.9;
+    font-size: 0.95em;
+  }
+
+  #map {
+    height: calc(100vh - 95px);
+    width: 100%;
+  }
+
+  /* Style des popups */
+  .leaflet-popup-content-wrapper {
+    border-radius: 12px;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .leaflet-popup-content {
+    margin: 0;
+    width: 280px !important;
+  }
+
+  .popup-inner {
+    padding: 15px;
+  }
+
+  .popup-inner h3 {
+    margin: 0 0 8px;
+    color: #d63384;
+    font-size: 1.2em;
+  }
+
+  .popup-inner p {
+    margin: 0 0 10px;
+    color: #333;
+    font-size: 0.9em;
+    line-height: 1.4;
+  }
+
+  .popup-photos {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  .popup-photos img {
+    width: 90px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 8px;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+
+  .popup-photos img:hover {
+    transform: scale(1.05);
+  }
+
+  .popup-date {
+    font-size: 0.75em;
+    color: #999;
+    margin-top: 6px;
+  }
+
+  /* Lightbox pour agrandir les photos */
+  #lightbox {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.9);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    cursor: zoom-out;
+  }
+
+  #lightbox img {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 8px;
+  }
+
+  /* Style custom du cluster */
+  .marker-cluster-custom {
+    background: rgba(214, 51, 132, 0.7);
+    border-radius: 50%;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    border: 3px solid rgba(214, 51, 132, 0.4);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>💕 Nos endroits</h1>
+  <p>Tous les lieux qu'on a explorés ensemble</p>
+</header>
+
+<div id="map"></div>
+<div id="lightbox"><img id="lightbox-img" src="" alt=""></div>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<!-- Leaflet MarkerCluster JS -->
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+
+<script>
+  // ============================================
+  // DONNÉES DES LIEUX - à remplacer par vos vrais lieux
+  // ============================================
+  const lieux = [
+    {
+      nom: "Paris",
+      lat: 48.8566,
+      lng: 2.3522,
+      description: "Notre premier voyage ensemble ! On a marché des heures le long de la Seine.",
+      date: "Juin 2023",
+      photos: [
+        "https://picsum.photos/seed/paris1/300/300",
+        "https://picsum.photos/seed/paris2/300/300",
+        "https://picsum.photos/seed/paris3/300/300"
+      ]
+    },
+    {
+      nom: "Fontaine des Innocents",
+      lat: 48.86066818237305,
+      lng: 2.3480160236358643,
+      description: "Notre point de RDV pour marcher sur paris :)",
+      date: "Mars 2025",
+      photos: [
+        "https://picsum.photos/seed/paris1/300/300",
+        "https://picsum.photos/seed/paris2/300/300",
+        "https://picsum.photos/seed/paris3/300/300"
+      ]
+    },
+    {
+      nom: "Appart de Champigny",
+      lat: 48.8123457,
+      lng: 2.5093782,
+      description: "Notre endroit tranquille pour se retrouver sans être dérangé. L'endroit où on s'est mis en couple ❤️ et le premier bisou 👀",
+      date: "Décembre 2025",
+      photos: [
+        "https://picsum.photos/seed/paris1/300/300",
+        "https://picsum.photos/seed/paris2/300/300",
+        "https://picsum.photos/seed/paris3/300/300"
+      ]
+    },
+    {
+      nom: "Jyvaskyla",
+      lat: 62.241672,
+      lng: 25.7495806,
+      description: "Notre premier voyage ensemble ! ",
+      date: "Avril & Mai 2025",
+      photos: [
+        "https://picsum.photos/seed/paris1/300/300",
+        "https://picsum.photos/seed/paris2/300/300",
+        "https://picsum.photos/seed/paris3/300/300"
+      ]
+    },
+    {
+      nom: "Lac de Jyvaskyla",
+      lat: 62.25114754781425,
+      lng: 25.72139411775907,
+      description: "Endroit ou tu as failli perdre tes pieds, mais c'est ok c'était un bon moment. Et on a fait des belles balades et des belels pohtos👀",
+      date: "Avril 2025",
+      photos: [
+        "https://picsum.photos/seed/paris1/300/300",
+        "https://picsum.photos/seed/paris2/300/300",
+        "https://picsum.photos/seed/paris3/300/300"
+      ]
+    },
+    {
+      nom: "La Défense",
+      lat: 48.890106201171875,
+      lng: 2.237318515777588,
+      description: "La ou tu connais toutes les boutiques plus que moi alors que ca fait 17 ans que je vis la 😂. Mais on est sacrément efficace dans les magasins en tout cas. ",
+      date: "Toute periode",
+      photos: [
+        "https://picsum.photos/seed/paris1/300/300",
+        "https://picsum.photos/seed/paris2/300/300",
+        "https://picsum.photos/seed/paris3/300/300"
+      ]
+    },
+    {
+      nom: "Le Sola",
+      lat: 48.89030075073242,
+      lng: 2.237520217895508,
+      description: "Notre petit resto quand on fait des dates a La Defense. Les gens à coté ecoutent nos discussion mais on a appris a s'en foutre. Par contre ce qu'on a pas appris c'est a bien dire le nom  des plats (surtout toi 😂)",
+      date: "Indémodable",
+      photos: [
+        "https://picsum.photos/seed/paris1/300/300",
+        "https://picsum.photos/seed/paris2/300/300",
+        "https://picsum.photos/seed/paris3/300/300"
+      ]
+    },
+    {
+      nom: "Sushi Tokyo",
+      lat: 48.8979547,
+      lng: 2.2362167,
+      description: "Notre japonais préféré à la défense (c'est pratique il est pres). Ils doivent nous connaitre par coeur. 'Deux menus étudiants svp' 😂",
+      date: "Indémodable",
+      photos: [
+        "https://picsum.photos/seed/paris1/300/300",
+        "https://picsum.photos/seed/paris2/300/300",
+        "https://picsum.photos/seed/paris3/300/300"
+      ]
+    },
+    {
+      nom: "Chez moi courbevoie",
+      lat: 48.897666931152344,
+      lng: 2.235090732574463,
+      description: "Un des endroit ou j'habite ou on a passé pas mal de temps et c'est pas pres de changer 👀 c'est souvent le bordel quand tu viens mais j'assume et de toute façon on pas d'yeux pour ca mais pour autre chose.",
+      date: "encore la pour longtemps",
+      photos: [
+        "https://picsum.photos/seed/paris1/300/300",
+        "https://picsum.photos/seed/paris2/300/300",
+        "https://picsum.photos/seed/paris3/300/300"
+      ]
+    },
+    {
+      nom: "Chez toi",
+      lat: 48.803279876708984,
+      lng: 2.507655382156372,
+      description: "Pas grand chose a dire à part que c'est trop bien de pouvoir passer plusieurs jours avec toi la bas 👀 (et trop mimi la Elfie)",
+      date: "intemporel",
+      photos: [
+        "https://picsum.photos/seed/paris1/300/300",
+        "https://picsum.photos/seed/paris2/300/300",
+        "https://picsum.photos/seed/paris3/300/300"
+      ]
+    },
+
+    {
+      nom: "BDM",
+      lat: 48.80939140743179,
+      lng: 2.51128620160308,
+      description: "Personne à part nous deux dis 'BDM' mais c'est ok. Endroit ou on a fait des longues balade très sympa. Bien sur du paddle aussi ou on a notre petit coin secret 🤫. On a aussi le banc caché et debvant la maison qu'on aime bien :) Enfin bref pleins de coins sympa et de bons souvenirs. Et c'est pas pres de s'arreter. ",
+      date: "depuis longtemps et pour longtemps",
+      photos: [
+        "https://picsum.photos/seed/rome1/300/300",
+        "https://picsum.photos/seed/rome2/300/300"
+      ]
+    },
+    {
+      nom: "Chez Cédric",
+      lat: 48.7944025,
+      lng: 2.5130777,
+      description: "Première fois qu'on s'est rencontré à l'anniversaire de Cédric et depuis on s'est plus jamais laché 👀",
+      date: "Mars 2024",
+      photos: [
+        "https://picsum.photos/seed/lisbonne1/300/300",
+        "https://picsum.photos/seed/lisbonne2/300/300",
+        "https://picsum.photos/seed/lisbonne3/300/300"
+      ]
+    }
+  ];
+
+  // ============================================
+  // INITIALISATION DE LA CARTE
+  // ============================================
+  const map = L.map('map').setView([46.0, 5.0], 4);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    maxZoom: 19
+  }).addTo(map);
+
+  // Groupe de clustering
+  const markers = L.markerClusterGroup({
+    iconCreateFunction: function(cluster) {
+      const count = cluster.getChildCount();
+      return L.divIcon({
+        html: '<div class="marker-cluster-custom" style="width:40px;height:40px;">' + count + '</div>',
+        className: '',
+        iconSize: L.point(40, 40)
+      });
+    }
+  });
+
+  // ============================================
+  // CRÉATION DES MARKERS
+  // ============================================
+  lieux.forEach(lieu => {
+    const marker = L.marker([lieu.lat, lieu.lng]);
+
+    const photosHtml = lieu.photos
+      .map(src => `<img src="${src}" onclick="openLightbox('${src}')" alt="${lieu.nom}">`)
+      .join('');
+
+    const popupContent = `
+      <div class="popup-inner">
+        <h3>${lieu.nom}</h3>
+        <p>${lieu.description}</p>
+        <div class="popup-photos">${photosHtml}</div>
+        <div class="popup-date">${lieu.date}</div>
+      </div>
+    `;
+
+    marker.bindPopup(popupContent);
+    markers.addLayer(marker);
+  });
+
+  map.addLayer(markers);
+
+  // ============================================
+  // LIGHTBOX (agrandir une photo au clic)
+  // ============================================
+  function openLightbox(src) {
+    document.getElementById('lightbox-img').src = src;
+    document.getElementById('lightbox').style.display = 'flex';
+  }
+
+  document.getElementById('lightbox').addEventListener('click', () => {
+    document.getElementById('lightbox').style.display = 'none';
+  });
+</script>
+
+</body>
+</html>
