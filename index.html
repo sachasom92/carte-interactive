@@ -628,37 +628,33 @@
   #bouton-choisir-coord:hover { border-color: var(--bordeaux); color: var(--bordeaux-fonce); }
   #bouton-choisir-coord.actif { border-color: var(--bordeaux); background: var(--bordeaux); color: var(--papier); }
 
-  #liste-photos-form { display: flex; flex-direction: column; gap: 6px; margin-top: 6px; }
-  .photo-ligne-form { display: flex; gap: 6px; align-items: center; }
-  .photo-ligne-form input {
-    flex: 1;
-    padding: 7px 9px;
-    border: 1px solid var(--ligne);
+  #liste-photos-form { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .photo-vignette {
+    position: relative;
+    width: 72px; height: 72px;
     border-radius: 4px;
-    font-size: 0.8em;
-    font-family: 'Karla', sans-serif;
-  }
-  .photo-ligne-form button {
+    overflow: hidden;
     border: 1px solid var(--ligne);
-    background: var(--papier-fonce);
-    color: var(--bordeaux);
-    border-radius: 4px;
-    width: 30px; height: 30px;
-    cursor: pointer;
-    font-size: 0.9em;
     flex-shrink: 0;
   }
-  #bouton-ajouter-photo {
-    border: 1px dashed var(--ligne);
-    background: transparent;
-    color: var(--encre-douce);
-    padding: 6px;
-    border-radius: 4px;
-    font-size: 0.78em;
-    cursor: pointer;
-    margin-top: 4px;
+  .photo-vignette img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .photo-vignette .photo-supprimer {
+    position: absolute; top: 2px; right: 2px;
+    background: rgba(20,16,26,0.75); color: var(--papier);
+    border: none; border-radius: 50%;
+    width: 20px; height: 20px; font-size: 0.7em;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
   }
-  #bouton-ajouter-photo:hover { border-color: var(--or); color: var(--bordeaux-fonce); }
+  .photo-vignette.en-cours {
+    display: flex; align-items: center; justify-content: center;
+    background: var(--papier-fonce);
+    font-size: 0.65em; color: var(--encre-douce); text-align: center; padding: 4px;
+  }
+  .photo-vignette.en-erreur {
+    display: flex; align-items: center; justify-content: center;
+    background: var(--papier-fonce);
+    font-size: 0.6em; color: var(--bordeaux); text-align: center; padding: 4px;
+  }
 
   .form-actions {
     display: flex; gap: 10px; margin-top: 20px;
@@ -819,10 +815,10 @@ Joyeux anniversaire 💕</p>
       </div>
 
       <div class="champ-groupe">
-        <label>Photos (URLs GitHub)</label>
+        <label>Photos</label>
+        <input type="file" id="f-photo-fichier" accept="image/*" multiple>
+        <div class="sous-texte">Sélectionne une ou plusieurs photos — elles s'uploadent automatiquement.</div>
         <div id="liste-photos-form"></div>
-        <button type="button" id="bouton-ajouter-photo" onclick="ajouterChampPhoto()">+ Ajouter une photo</button>
-        <div class="sous-texte">Uploade la photo dans le dossier /photos du repo GitHub, puis colle son URL "raw" ici.</div>
       </div>
 
       <div id="erreur-formulaire"></div>
@@ -1201,17 +1197,23 @@ Joyeux anniversaire 💕</p>
     map, markers, markersParLieu, lieux, lieuxCollectionRef,
     categories, creerIconeEmoji, urlPhoto,
     rafraichirApresModification: async function () {
-      // Recharge tout depuis Firestore et reconstruit la carte/frise/filtres
-      // (façon la plus sûre de rester cohérent après un ajout/modif/suppr).
-      document.getElementById('map').remove();
+      // Recharge tout depuis Firestore et reconstruit la carte/frise/filtres.
+      try {
+        // On détruit proprement l'instance Leaflet existante (libère les
+        // event listeners internes) avant de reconstruire le DOM du div.
+        map.remove();
+      } catch (e) {
+        console.warn('Nettoyage carte précédente:', e);
+      }
+      const ancienDiv = document.getElementById('map');
       const nouveauDiv = document.createElement('div');
       nouveauDiv.id = 'map';
-      document.getElementById('frise-container').before(nouveauDiv);
-      const relance = document.getElementById('filtres');
-      relance.innerHTML = '';
-      const btnHistoireExistant = document.getElementById('bouton-histoire');
-      if (btnHistoireExistant) btnHistoireExistant.remove();
+      ancienDiv.replaceWith(nouveauDiv);
+
+      document.getElementById('filtres').innerHTML = '';
       document.getElementById('frise').innerHTML = '';
+      controlesHistoire.classList.remove('visible');
+
       const lieuxRafraichis = await chargerLieuxDepuisFirestore();
       initialiserCarteEtInterface(lieuxRafraichis);
     }
@@ -1234,6 +1236,13 @@ Joyeux anniversaire 💕</p>
   let lieuEnEditionId = null;
   let modePlacementActif = false;
 
+  // URL de ton Worker Cloudflare — à remplacer par la tienne une fois déployée
+  const URL_WORKER_UPLOAD = "https://upload-photo-carte.sacha-som92.workers.dev/";
+
+  // Liste des photos du lieu en cours d'édition : chaque entrée est soit
+  // { url } (déjà en ligne), soit { enCours: true, id } pendant l'upload.
+  let photosDuFormulaire = [];
+
   function ctx() { return window.__carte; }
 
   function remplirCategories() {
@@ -1249,24 +1258,85 @@ Joyeux anniversaire 💕</p>
   }
 
   function viderChampsPhotos() {
+    photosDuFormulaire = [];
     document.getElementById('liste-photos-form').innerHTML = '';
+    document.getElementById('f-photo-fichier').value = '';
   }
 
-  window.ajouterChampPhoto = function (valeur = '') {
+  function nomDossierPourLieu() {
+    const nom = document.getElementById('f-nom').value.trim();
+    return nom.length > 0 ? nom : 'divers';
+  }
+
+  function redessinerVignettesPhotos() {
     const conteneur = document.getElementById('liste-photos-form');
-    const ligne = document.createElement('div');
-    ligne.className = 'photo-ligne-form';
-    ligne.innerHTML = `
-      <input type="text" class="champ-photo-url" placeholder="https://raw.githubusercontent.com/..." value="${valeur.replace(/"/g, '&quot;')}">
-      <button type="button" onclick="this.parentElement.remove()">✕</button>
-    `;
-    conteneur.appendChild(ligne);
-  };
+    conteneur.innerHTML = '';
+    photosDuFormulaire.forEach((item, index) => {
+      const vignette = document.createElement('div');
+      if (item.enCours) {
+        vignette.className = 'photo-vignette en-cours';
+        vignette.textContent = 'Envoi...';
+      } else if (item.enErreur) {
+        vignette.className = 'photo-vignette en-erreur';
+        vignette.textContent = 'Échec';
+      } else {
+        vignette.className = 'photo-vignette';
+        vignette.innerHTML = `
+          <img src="${item.url}" alt="">
+          <button type="button" class="photo-supprimer" title="Retirer">✕</button>
+        `;
+        vignette.querySelector('.photo-supprimer').onclick = () => {
+          photosDuFormulaire.splice(index, 1);
+          redessinerVignettesPhotos();
+        };
+      }
+      conteneur.appendChild(vignette);
+    });
+  }
+
+  async function uploaderUneImage(fichier) {
+    const item = { enCours: true, id: Math.random() };
+    photosDuFormulaire.push(item);
+    redessinerVignettesPhotos();
+
+    try {
+      const formData = new FormData();
+      formData.append('photo', fichier);
+      formData.append('dossier', nomDossierPourLieu());
+
+      const reponse = await fetch(URL_WORKER_UPLOAD, { method: 'POST', body: formData });
+      const resultat = await reponse.json();
+
+      if (!reponse.ok || resultat.erreur) {
+        throw new Error(resultat.erreur || 'Échec de l\'upload.');
+      }
+
+      item.enCours = false;
+      item.url = resultat.url;
+    } catch (err) {
+      console.error('Erreur upload photo:', err);
+      item.enCours = false;
+      item.enErreur = true;
+    }
+    redessinerVignettesPhotos();
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('f-photo-fichier').addEventListener('change', (e) => {
+      const fichiers = Array.from(e.target.files || []);
+      fichiers.forEach(fichier => uploaderUneImage(fichier));
+      e.target.value = ''; // permet de re-sélectionner le même fichier plus tard
+    });
+  });
 
   function recupererPhotosDuFormulaire() {
-    return Array.from(document.querySelectorAll('.champ-photo-url'))
-      .map(input => input.value.trim())
-      .filter(v => v.length > 0);
+    return photosDuFormulaire
+      .filter(item => !item.enCours && !item.enErreur && item.url)
+      .map(item => item.url);
+  }
+
+  function chargementPhotosEnCours() {
+    return photosDuFormulaire.some(item => item.enCours);
   }
 
   window.ouvrirFormulaireAjout = function () {
@@ -1315,7 +1385,8 @@ Joyeux anniversaire 💕</p>
       document.getElementById('f-date-speciale').value = lieu.date;
     }
 
-    (lieu.photos || []).forEach(url => window.ajouterChampPhoto(url));
+    photosDuFormulaire = (lieu.photos || []).map(url => ({ url }));
+    redessinerVignettesPhotos();
 
     ctx().map.closePopup();
     document.getElementById('overlay-formulaire').classList.add('visible');
@@ -1325,6 +1396,7 @@ Joyeux anniversaire 💕</p>
     document.getElementById('overlay-formulaire').classList.remove('visible');
     if (modePlacementActif) desactiverModePlacement();
   };
+
 
   // ----- Placement sur la carte -----
   function activerModePlacement() {
@@ -1360,6 +1432,11 @@ Joyeux anniversaire 💕</p>
     const erreurEl = document.getElementById('erreur-formulaire');
     const boutonValider = document.getElementById('btn-form-valider');
     erreurEl.textContent = '';
+
+    if (chargementPhotosEnCours()) {
+      erreurEl.textContent = 'Merci d\'attendre la fin de l\'envoi des photos avant d\'enregistrer.';
+      return;
+    }
 
     const nom = document.getElementById('f-nom').value.trim();
     const categorie = document.getElementById('f-categorie').value;
@@ -1399,8 +1476,15 @@ Joyeux anniversaire 💕</p>
       } else {
         await addDoc(ctx().lieuxCollectionRef, donnees);
       }
+      // L'écriture a réussi : on ferme le formulaire dans tous les cas,
+      // même si le rafraîchissement de la carte qui suit rencontre un souci.
       document.getElementById('overlay-formulaire').classList.remove('visible');
-      await ctx().rafraichirApresModification();
+      document.getElementById('form-lieu').reset();
+      try {
+        await ctx().rafraichirApresModification();
+      } catch (errRafraichissement) {
+        console.error('Erreur pendant le rafraîchissement de la carte :', errRafraichissement);
+      }
     } catch (err) {
       erreurEl.textContent = "Erreur lors de l'enregistrement : " + err.message;
     } finally {
