@@ -1395,7 +1395,9 @@ Joyeux anniversaire 💕</p>
   };
 
   window.fermerFormulaire = function () {
-    document.getElementById('overlay-formulaire').classList.remove('visible');
+    const overlay = document.getElementById('overlay-formulaire');
+    overlay.classList.remove('visible');
+    overlay.style.display = ''; // retire tout style inline résiduel (ancien bug)
     if (modePlacementActif) desactiverModePlacement();
   };
 
@@ -1405,12 +1407,12 @@ Joyeux anniversaire 💕</p>
     modePlacementActif = true;
     document.getElementById('bouton-choisir-coord').classList.add('actif');
     document.getElementById('mode-placement-info').classList.add('visible');
-    document.getElementById('overlay-formulaire').style.display = 'none';
+    document.getElementById('overlay-formulaire').classList.remove('visible');
     ctx().map.once('click', (e) => {
       document.getElementById('f-lat').value = e.latlng.lat.toFixed(6);
       document.getElementById('f-lng').value = e.latlng.lng.toFixed(6);
       desactiverModePlacement();
-      document.getElementById('overlay-formulaire').style.display = 'flex';
+      document.getElementById('overlay-formulaire').classList.add('visible');
     });
   }
 
@@ -1418,7 +1420,6 @@ Joyeux anniversaire 💕</p>
     modePlacementActif = false;
     document.getElementById('bouton-choisir-coord').classList.remove('actif');
     document.getElementById('mode-placement-info').classList.remove('visible');
-    document.getElementById('overlay-formulaire').style.display = 'flex';
   }
 
   window.basculerModePlacement = function () {
@@ -1480,7 +1481,9 @@ Joyeux anniversaire 💕</p>
       }
       // L'écriture a réussi : on ferme le formulaire dans tous les cas,
       // même si le rafraîchissement de la carte qui suit rencontre un souci.
-      document.getElementById('overlay-formulaire').classList.remove('visible');
+      const overlayForm = document.getElementById('overlay-formulaire');
+      overlayForm.classList.remove('visible');
+      overlayForm.style.display = ''; // retire tout style inline résiduel (ancien bug)
       document.getElementById('form-lieu').reset();
       try {
         await ctx().rafraichirApresModification();
