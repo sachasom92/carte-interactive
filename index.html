@@ -837,6 +837,16 @@ Joyeux anniversaire 💕</p>
 <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 
 <script type="module">
+  // Définies immédiatement (pas dans initialiserCarteEtInterface) car ces
+  // écrans (anniversaire, lightbox) peuvent être déclenchés avant la connexion.
+  window.fermerAnniv = function fermerAnniv() {
+    document.getElementById('overlay-anniv').style.display = 'none';
+  };
+  window.openLightbox = function openLightbox(src) {
+    document.getElementById('lightbox-img').src = src;
+    document.getElementById('lightbox').style.display = 'flex';
+  };
+
   const DATE_DEBUT = new Date(2025, 11, 12); // 12 décembre 2025
 
   function majCompteur() {
@@ -1158,17 +1168,9 @@ Joyeux anniversaire 💕</p>
     frise.appendChild(point);
   });
 
-  window.openLightbox = function openLightbox(src) {
-    document.getElementById('lightbox-img').src = src;
-    document.getElementById('lightbox').style.display = 'flex';
-  }
   document.getElementById('lightbox').addEventListener('click', () => {
     document.getElementById('lightbox').style.display = 'none';
   });
-
-  window.fermerAnniv = function fermerAnniv() {
-    document.getElementById('overlay-anniv').style.display = 'none';
-  }
 
   function lancerParticules() {
     const emojis = ['🎉', '❤️', '💕', '✨', '🎊'];
@@ -1237,7 +1239,7 @@ Joyeux anniversaire 💕</p>
   let modePlacementActif = false;
 
   // URL de ton Worker Cloudflare — à remplacer par la tienne une fois déployée
-  const URL_WORKER_UPLOAD = "https://upload-photo-carte.sacha-som92.workers.dev/";
+  const URL_WORKER_UPLOAD = "https://upload-photo-carte.TON-PSEUDO.workers.dev";
 
   // Liste des photos du lieu en cours d'édition : chaque entrée est soit
   // { url } (déjà en ligne), soit { enCours: true, id } pendant l'upload.
