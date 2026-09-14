@@ -415,9 +415,316 @@
   #frise-container::-webkit-scrollbar { height: 5px; }
   #frise-container::-webkit-scrollbar-thumb { background: var(--or); border-radius: 3px; }
   #frise-container::-webkit-scrollbar-track { background: transparent; }
+
+  /* ===== ECRAN DE CONNEXION ===== */
+  #ecran-connexion {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: var(--papier);
+    z-index: 20000;
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+
+  #boite-connexion {
+    background: var(--papier);
+    border: 1px solid var(--or);
+    border-radius: 6px;
+    padding: 40px 34px;
+    max-width: 360px;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(43,36,56,0.2);
+    text-align: center;
+  }
+
+  #boite-connexion h2 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 600;
+    color: var(--bordeaux-fonce);
+    margin: 0 0 6px;
+    font-size: 1.5em;
+  }
+
+  #boite-connexion p.souselement {
+    color: var(--encre-douce);
+    font-size: 0.85em;
+    margin: 0 0 24px;
+  }
+
+  #boite-connexion input {
+    width: 100%;
+    padding: 11px 13px;
+    margin-bottom: 12px;
+    border: 1px solid var(--ligne);
+    border-radius: 4px;
+    font-family: 'Karla', sans-serif;
+    font-size: 0.9em;
+    background: var(--papier);
+    color: var(--encre);
+  }
+
+  #boite-connexion input:focus { outline: none; border-color: var(--bordeaux); }
+
+  #boite-connexion button {
+    width: 100%;
+    background: var(--bordeaux);
+    border: none;
+    color: var(--papier);
+    padding: 12px;
+    border-radius: 4px;
+    font-family: 'Karla', sans-serif;
+    font-weight: 600;
+    font-size: 0.9em;
+    cursor: pointer;
+    margin-top: 6px;
+    transition: background 0.15s;
+  }
+
+  #boite-connexion button:hover { background: var(--bordeaux-fonce); }
+  #boite-connexion button:disabled { opacity: 0.6; cursor: default; }
+
+  #erreur-connexion {
+    color: var(--bordeaux);
+    font-size: 0.8em;
+    margin-top: 12px;
+    min-height: 1em;
+  }
+
+  #app-contenu { display: none; }
+  #app-contenu.visible { display: block; }
+
+  /* ===== BOUTON DECONNEXION ===== */
+  #bouton-deconnexion {
+    position: fixed;
+    top: 14px;
+    right: 14px;
+    z-index: 9600;
+    background: var(--encre);
+    color: var(--papier);
+    border: 1px solid var(--or);
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-family: 'Karla', sans-serif;
+    font-size: 0.75em;
+    cursor: pointer;
+  }
+  #bouton-deconnexion:hover { background: var(--bordeaux-fonce); }
+
+  /* ===== BOUTON AJOUTER UN LIEU (flottant) ===== */
+  #bouton-ajouter {
+    position: fixed;
+    bottom: 24px;
+    right: 20px;
+    z-index: 9400;
+    background: var(--bordeaux);
+    color: var(--papier);
+    border: none;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    font-size: 1.6em;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(43,36,56,0.35);
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s, transform 0.15s;
+  }
+  #bouton-ajouter:hover { background: var(--bordeaux-fonce); transform: scale(1.05); }
+
+  /* ===== BOUTON MODIFIER (dans popup) ===== */
+  .popup-actions {
+    display: flex; gap: 8px; margin-top: 10px;
+  }
+  .popup-btn-modifier, .popup-btn-supprimer {
+    border: 1px solid var(--ligne);
+    background: var(--papier-fonce);
+    color: var(--encre-douce);
+    font-family: 'Karla', sans-serif;
+    font-size: 0.75em;
+    padding: 5px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  .popup-btn-modifier:hover { border-color: var(--bordeaux); color: var(--bordeaux-fonce); }
+  .popup-btn-supprimer:hover { border-color: var(--bordeaux); color: var(--bordeaux); }
+
+  /* ===== MODAL FORMULAIRE LIEU ===== */
+  #overlay-formulaire {
+    display: none;
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(20,16,26,0.75);
+    z-index: 19000;
+    align-items: center; justify-content: center;
+    padding: 20px;
+    overflow-y: auto;
+  }
+  #overlay-formulaire.visible { display: flex; }
+
+  #boite-formulaire {
+    background: var(--papier);
+    border: 1px solid var(--or);
+    border-radius: 6px;
+    padding: 28px 26px;
+    max-width: 440px;
+    width: 100%;
+    max-height: 88vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  }
+
+  #boite-formulaire h2 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    color: var(--bordeaux-fonce);
+    margin: 0 0 18px;
+    font-size: 1.4em;
+  }
+
+  .champ-groupe { margin-bottom: 14px; text-align: left; }
+  .champ-groupe label {
+    display: block;
+    font-size: 0.78em;
+    font-weight: 600;
+    color: var(--encre-douce);
+    margin-bottom: 5px;
+  }
+  .champ-groupe input[type="text"],
+  .champ-groupe input[type="number"],
+  .champ-groupe select,
+  .champ-groupe textarea {
+    width: 100%;
+    padding: 9px 11px;
+    border: 1px solid var(--ligne);
+    border-radius: 4px;
+    font-family: 'Karla', sans-serif;
+    font-size: 0.87em;
+    background: var(--papier);
+    color: var(--encre);
+  }
+  .champ-groupe textarea { resize: vertical; min-height: 70px; }
+  .champ-groupe input:focus, .champ-groupe select:focus, .champ-groupe textarea:focus {
+    outline: none; border-color: var(--bordeaux);
+  }
+
+  .champ-ligne { display: flex; gap: 10px; }
+  .champ-ligne .champ-groupe { flex: 1; }
+
+  .champ-groupe .sous-texte {
+    font-size: 0.72em;
+    color: var(--encre-douce);
+    margin-top: 4px;
+  }
+
+  #bouton-choisir-coord {
+    border: 1px dashed var(--or);
+    background: var(--papier-fonce);
+    color: var(--encre-douce);
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 0.8em;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 4px;
+  }
+  #bouton-choisir-coord:hover { border-color: var(--bordeaux); color: var(--bordeaux-fonce); }
+  #bouton-choisir-coord.actif { border-color: var(--bordeaux); background: var(--bordeaux); color: var(--papier); }
+
+  #liste-photos-form { display: flex; flex-direction: column; gap: 6px; margin-top: 6px; }
+  .photo-ligne-form { display: flex; gap: 6px; align-items: center; }
+  .photo-ligne-form input {
+    flex: 1;
+    padding: 7px 9px;
+    border: 1px solid var(--ligne);
+    border-radius: 4px;
+    font-size: 0.8em;
+    font-family: 'Karla', sans-serif;
+  }
+  .photo-ligne-form button {
+    border: 1px solid var(--ligne);
+    background: var(--papier-fonce);
+    color: var(--bordeaux);
+    border-radius: 4px;
+    width: 30px; height: 30px;
+    cursor: pointer;
+    font-size: 0.9em;
+    flex-shrink: 0;
+  }
+  #bouton-ajouter-photo {
+    border: 1px dashed var(--ligne);
+    background: transparent;
+    color: var(--encre-douce);
+    padding: 6px;
+    border-radius: 4px;
+    font-size: 0.78em;
+    cursor: pointer;
+    margin-top: 4px;
+  }
+  #bouton-ajouter-photo:hover { border-color: var(--or); color: var(--bordeaux-fonce); }
+
+  .form-actions {
+    display: flex; gap: 10px; margin-top: 20px;
+  }
+  .form-actions button {
+    flex: 1;
+    padding: 11px;
+    border-radius: 4px;
+    font-family: 'Karla', sans-serif;
+    font-weight: 600;
+    font-size: 0.85em;
+    cursor: pointer;
+    border: none;
+  }
+  #btn-form-annuler {
+    background: var(--papier-fonce);
+    color: var(--encre-douce);
+    border: 1px solid var(--ligne) !important;
+  }
+  #btn-form-annuler:hover { border-color: var(--bordeaux) !important; color: var(--bordeaux); }
+  #btn-form-valider {
+    background: var(--bordeaux);
+    color: var(--papier);
+  }
+  #btn-form-valider:hover { background: var(--bordeaux-fonce); }
+  #btn-form-valider:disabled { opacity: 0.6; cursor: default; }
+
+  #erreur-formulaire {
+    color: var(--bordeaux);
+    font-size: 0.8em;
+    margin-top: 10px;
+    min-height: 1em;
+  }
+
+  #mode-placement-info {
+    display: none;
+    position: fixed;
+    top: 14px; left: 50%; transform: translateX(-50%);
+    z-index: 9700;
+    background: var(--encre);
+    color: var(--papier);
+    border: 1px solid var(--or);
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 0.8em;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+  }
+  #mode-placement-info.visible { display: block; }
 </style>
 </head>
 <body>
+
+<div id="ecran-connexion">
+  <div id="boite-connexion">
+    <h2>Nos endroits</h2>
+    <p class="souselement">Cet espace est privé — connecte-toi pour continuer.</p>
+    <input type="email" id="connexion-email" placeholder="Email" autocomplete="username">
+    <input type="password" id="connexion-motdepasse" placeholder="Mot de passe" autocomplete="current-password">
+    <button id="connexion-bouton" onclick="tenterConnexion()">Se connecter</button>
+    <div id="erreur-connexion"></div>
+  </div>
+</div>
+
+<button id="bouton-deconnexion" onclick="deconnexion()">Se déconnecter</button>
+
+<div id="app-contenu">
 
 <div id="overlay-anniv">
   <div id="carte-anniv">
@@ -454,10 +761,86 @@ Joyeux anniversaire 💕</p>
   <button id="histoire-quitter" onclick="quitterModeHistoire()">Quitter</button>
 </div>
 
+<button id="bouton-ajouter" title="Ajouter un lieu" onclick="ouvrirFormulaireAjout()">+</button>
+
+<div id="mode-placement-info">Clique sur la carte pour placer le lieu</div>
+
+<div id="overlay-formulaire">
+  <div id="boite-formulaire">
+    <h2 id="titre-formulaire">Ajouter un lieu</h2>
+    <form id="form-lieu" onsubmit="event.preventDefault(); enregistrerLieu();">
+      <div class="champ-groupe">
+        <label for="f-nom">Nom du lieu</label>
+        <input type="text" id="f-nom" required>
+      </div>
+
+      <div class="champ-groupe">
+        <label for="f-categorie">Catégorie</label>
+        <select id="f-categorie"></select>
+      </div>
+
+      <div class="champ-groupe">
+        <label>Coordonnées</label>
+        <div class="champ-ligne">
+          <div class="champ-groupe">
+            <input type="number" step="any" id="f-lat" placeholder="Latitude" required>
+          </div>
+          <div class="champ-groupe">
+            <input type="number" step="any" id="f-lng" placeholder="Longitude" required>
+          </div>
+        </div>
+        <button type="button" id="bouton-choisir-coord" onclick="basculerModePlacement()">📍 Choisir sur la carte</button>
+      </div>
+
+      <div class="champ-groupe">
+        <label>Date</label>
+        <div class="champ-ligne">
+          <div class="champ-groupe">
+            <select id="f-mois">
+              <option value="0">Janvier</option><option value="1">Février</option>
+              <option value="2">Mars</option><option value="3">Avril</option>
+              <option value="4">Mai</option><option value="5">Juin</option>
+              <option value="6">Juillet</option><option value="7">Août</option>
+              <option value="8">Septembre</option><option value="9">Octobre</option>
+              <option value="10">Novembre</option><option value="11">Décembre</option>
+            </select>
+          </div>
+          <div class="champ-groupe">
+            <input type="number" id="f-annee" placeholder="Année" min="2000" max="2100">
+          </div>
+        </div>
+        <div class="sous-texte">Ou saisis une date spéciale à la place (ex: "Indémodable") :</div>
+        <input type="text" id="f-date-speciale" placeholder="Laisser vide pour utiliser mois/année">
+      </div>
+
+      <div class="champ-groupe">
+        <label for="f-description">Description</label>
+        <textarea id="f-description" required></textarea>
+      </div>
+
+      <div class="champ-groupe">
+        <label>Photos (URLs GitHub)</label>
+        <div id="liste-photos-form"></div>
+        <button type="button" id="bouton-ajouter-photo" onclick="ajouterChampPhoto()">+ Ajouter une photo</button>
+        <div class="sous-texte">Uploade la photo dans le dossier /photos du repo GitHub, puis colle son URL "raw" ici.</div>
+      </div>
+
+      <div id="erreur-formulaire"></div>
+
+      <div class="form-actions">
+        <button type="button" id="btn-form-annuler" onclick="fermerFormulaire()">Annuler</button>
+        <button type="submit" id="btn-form-valider">Enregistrer</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+</div><!-- fin #app-contenu -->
+
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 
-<script>
+<script type="module">
   const DATE_DEBUT = new Date(2025, 11, 12); // 12 décembre 2025
 
   function majCompteur() {
@@ -494,133 +877,127 @@ Joyeux anniversaire 💕</p>
     });
   }
 
+  // ===================================================================
+  // FIREBASE — connexion, lecture/écriture Firestore
+  // ===================================================================
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+  import {
+    getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut
+  } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+  import {
+    getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc
+  } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAbofE498TsJjGeWjLAi8NnBxb76FUc0HE",
+    authDomain: "carte-interactive-1953a.firebaseapp.com",
+    projectId: "carte-interactive-1953a",
+    storageBucket: "carte-interactive-1953a.firebasestorage.app",
+    messagingSenderId: "720851856095",
+    appId: "1:720851856095:web:84c348187131da98b4176a"
+  };
+
+  const fbApp = initializeApp(firebaseConfig);
+  const auth = getAuth(fbApp);
+  const db = getFirestore(fbApp);
+  const lieuxCollectionRef = collection(db, "lieux");
+
+  window.tenterConnexion = async function () {
+    const email = document.getElementById('connexion-email').value.trim();
+    const motdepasse = document.getElementById('connexion-motdepasse').value;
+    const erreurEl = document.getElementById('erreur-connexion');
+    const bouton = document.getElementById('connexion-bouton');
+    erreurEl.textContent = '';
+
+    if (!email || !motdepasse) {
+      erreurEl.textContent = 'Merci de remplir les deux champs.';
+      return;
+    }
+
+    bouton.disabled = true;
+    bouton.textContent = 'Connexion...';
+
+    try {
+      await signInWithEmailAndPassword(auth, email, motdepasse);
+      // onAuthStateChanged prend le relais pour afficher l'app
+    } catch (err) {
+      erreurEl.textContent = "Email ou mot de passe incorrect.";
+      bouton.disabled = false;
+      bouton.textContent = 'Se connecter';
+    }
+  };
+
+  window.deconnexion = function () {
+    signOut(auth);
+  };
+
+  // Permet d'appuyer sur "Entrée" dans les champs de connexion
+  document.addEventListener('DOMContentLoaded', () => {
+    ['connexion-email', 'connexion-motdepasse'].forEach(id => {
+      document.getElementById(id).addEventListener('keydown', e => {
+        if (e.key === 'Enter') window.tenterConnexion();
+      });
+    });
+  });
+
+  onAuthStateChanged(auth, (user) => {
+    const ecranConnexion = document.getElementById('ecran-connexion');
+    const appContenu = document.getElementById('app-contenu');
+    const boutonDeconnexion = document.getElementById('bouton-deconnexion');
+
+    if (user) {
+      ecranConnexion.style.display = 'none';
+      appContenu.classList.add('visible');
+      boutonDeconnexion.style.display = 'block';
+      demarrerApplication();
+    } else {
+      ecranConnexion.style.display = 'flex';
+      appContenu.classList.remove('visible');
+      boutonDeconnexion.style.display = 'none';
+    }
+  });
+
+  // ===================================================================
+  // CHARGEMENT DES LIEUX DEPUIS FIRESTORE
+  // ===================================================================
+  async function chargerLieuxDepuisFirestore() {
+    const snapshot = await getDocs(lieuxCollectionRef);
+    return snapshot.docs.map(docSnap => {
+      const data = docSnap.data();
+      return {
+        id: docSnap.id,
+        nom: data.nom,
+        lat: data.lat,
+        lng: data.lng,
+        categorie: data.categorie,
+        description: data.description,
+        date: data.date,
+        dateOrdre: data.dateOrdreTimestamp ? new Date(data.dateOrdreTimestamp) : new Date(0),
+        photos: data.photos || []
+      };
+    });
+  }
+
+  let applicationDejaDemarree = false;
+
+  async function demarrerApplication() {
+    if (applicationDejaDemarree) return; // évite de tout reconstruire si onAuthStateChanged refire
+    applicationDejaDemarree = true;
+    const lieuxCharges = await chargerLieuxDepuisFirestore();
+    initialiserCarteEtInterface(lieuxCharges);
+  }
+
+  // ===================================================================
+  // À PARTIR D'ICI : tout est exécuté une fois les lieux chargés depuis
+  // Firestore, dans initialiserCarteEtInterface(lieux). Les variables
+  // "markers", "markersParLieu", "map", etc. sont accrochées à window
+  // pour rester accessibles aux fonctions d'édition définies plus bas.
+  // ===================================================================
+  function initialiserCarteEtInterface(lieux) {
+
   const urlPhoto = (dossier, fichier) =>
     `https://raw.githubusercontent.com/sachasom/carte-interactive/main/photos/${encodeURIComponent(dossier)}/${encodeURIComponent(fichier)}`;
   const photos = (dossier, fichiers) => fichiers.map(fichier => urlPhoto(dossier, fichier));
-  const photosParLieu = {
-    Paris: photos("Paris", ["WhatsApp Image 2026-08-__31 at 13.07.53.jpg", "WhatsApp Image 2026-09-03 at 17.05.13 (8).jpeg", "WhatsApp Image 2026-09-03 at 17.05.13 (9).jpeg", "WhatsApp Image 2026-09-03 at 17.05.13 (10).jpeg", "WhatsApp Image 2026-09-03 at 17.05.13 (11).jpeg"]),
-    Louvre: photos("Louvre", ["WhatsApp Image 2026-09-03 at 17.05.13 (9).jpeg", "WhatsApp Image 2026-09-03 at 17.05.13 (10).jpeg"]),
-    "Fontaine des Innocents": photos("Fontaine des Innocents", ["WhatsApp Image 2026-08-__31 at 13.07.53.jpg", "WhatsApp Image 2026-08-31 at 13èè.07.54.jpg"]),
-    Karting: photos("Karting", ["WhatsApp Image 2026-08-31 at 13.07.54 (6).jpg", "WhatsApp Image 2026-08-31 at 13.07.55 (2).jpg"]),
-    Aquarium: photos("Aquarium", ["WhatsApp Image 2026---08-31 at 13.07.53.jpg", "WhatsApp Image 2026-08-31 at 1-3.07.53.jpg", "WhatsApp Image 2026-09-03 at 17.05.13 (12).jpeg", "WhatsApp Image 2026-09-03 at 17.05.13 (13).jpeg", "WhatsApp Image 2026-09-03 at 17.05.13 (16).jpeg", "WhatsApp Image 2026-09-03 at 17.05.13 (18).jpeg", "WhatsApp Image 2026-09-03 at 17.05.13 (33).jpeg"]),
-    Champigny: photos("Champigny", ["WhatsApp Image 2026-09-03 at 17.07.13.jpeg", "WhatsApp Image 2026-09-03 at 17.07.13 (1).jpeg", "WhatsApp Image 2026-09-03 at 17.07.13 (2).jpeg", "WhatsApp Image 2026-09-03 at 17.07.13 (3).jpeg", "WhatsApp Image 2026-09-03 at 17.07.13 (4).jpeg"]),
-    Jyvaskyla: photos("Jyvaskyla", ["WhatsApp Image 2026-08-31 at 13.07.56 (2).jpg", "WhatsApp Image 2026-08-31 at 13.07.56 (4).jpg", "WhatsApp Image 2026-08-31 at 13.07.56 (5).jpg", "WhatsApp Image 2026-08-31 at 13.07.56 (6).jpg", "WhatsApp Image 2026-08-31 at 13.07.56 (7).jpg", "WhatsApp Image 2026-08-31 at 13.07.56 (9).jpg", "WhatsApp Image 2026-08-31 at 13.07.57 (3).jpg", "WhatsApp Image 2026-08-31 at 13.07.57 (5).jpg"]),
-    Lac: photos("Lac de Jyvaskyla", ["WhatsApp Image 2026-08-31 at 13.07.56 (3).jpg", "WhatsApp Image 2026-08-31 at 13.07.56 (8).jpg", "WhatsApp Image 2026-09-03 at 17.45.08.jpeg", "WhatsApp Image 2026-09-03 at 17.45.09.jpeg"]),
-    Defense: photos("La Défense", ["WhatsApp Image 2026-08-31 at 13.07.54.jpg", "WhatsApp Image 2026-08-31 at 13.07.54 (1).jpg", "WhatsApp Image 2026-08-31 at 13.07.54 (2).jpg", "WhatsApp Image 2026-08-31 at 13.07.54 (5).jpg", "WhatsApp Image 2026-08-31 at 13.07.55.jpg", "WhatsApp Image 2026-09-03 at 17.00.50.jpeg"]),
-    Courbevoie: photos("Chez moi courbevoie", ["WhatsApp Image 2026-08-31 at 13.07.55 (1).jpg", "WhatsApp Image 2026-08-31 at 13.07.55 (4).jpg", "WhatsApp Image 2026-08-31 at 13.07.57 (4).jpg"]),
-    "Chez toi": photos("Chez toi", ["WhatsApp Image 2026-09-03 at 18.18.48.jpeg","WhatsApp Image 2026-08-31 at 13.07.54 (3).jpg", "WhatsApp Image 2026-08-31 at 13.07.54 (4).jpg", "WhatsApp Image 2026-08-31 at 13.07.57 (2).jpg"]),
-    BDM: photos("BDM", ["WhatsApp Image 2026-08-31 at 13.07.55 (5).jpg", "WhatsApp Image 2026-08-31 at 13.07.55 (6).jpg", "WhatsApp Image 2026-09-03 at 17.00.34 (1).jpeg", "WhatsApp Image 2026-09-03 at 17.00.34 (2).jpeg", "WhatsApp Image 2026-09-03 at 17.00.34 (5).jpeg", "WhatsApp Image 2026-09-03 at 17.00.34.jpeg", "WhatsApp Image 2026-09-03 at 17.05.13 (7).jpeg"]),
-    Paddle: photos("Paddle", ["WhatsApp Image 2026-08-31 at 13.07.55 (3).jpg", "WhatsApp Image 2026-08-31 at 13.07.55 (7).jpg", "WhatsApp Image 2026-08-31 at 13.07.55 (9).jpg", "WhatsApp Image 2026-08-31 at 13.07.55 (11).jpg"]),
-    Musee: photos("Musee de l'illusion", ["WhatsApp Image 2026-09-03 at 17.05.13 (66).jpeg", "WhatsApp Image 2026-09-03 at 17.05.13 (68).jpeg", "WhatsApp Image 2026-09-03 at 17.05.13 (69).jpeg", "WhatsApp Image 2026-09-03 at 17.05.13 (72).jpeg", "WhatsApp Image 2026-09-03 at 17.05.13 (74).jpeg", "WhatsApp Image 2026-09-03 at 17.05.13 (76).jpeg", "WhatsApp Image 2026-09-03 at 17.05.13 (79).jpeg", "WhatsApp Image 2026-09-03 at 17.05.13 (80).jpeg", "WhatsApp Image 2026-09-03 at 17.05.13 (84).jpeg", "WhatsApp Image 2026-09-03 at 17.05.13 (86).jpeg"]),
-    Cedric: photos("Chez Cédric", ["WhatsApp Image 2026-08-31 at 13.07.53.jpg", "WhatsApp Image 2026-08-31 at 13.07.57.jpg", "WhatsApp Image 2026-08-31 at 13.07.57 (1).jpg", "WhatsApp Image 2026-09-03 at 17.05.13 (1).jpeg", "WhatsApp Image 2026-09-03 at 17.05.13 (2).jpeg", "WhatsApp Image 2026-09-03 at 17.05.13 (3).jpeg", "WhatsApp Image 2026-09-03 at 17.05.13 (4).jpeg"])
-  };
-
-  const lieux = [
-    { nom: "Paris", lat: 48.8566, lng: 2.3522, categorie: "balade",
-      description: "On a marché des heures le long de la Seine. C'est un peu là où on a appris à se connaître :) On s'y est pris la pluie fort, fait les boutiques dans Châtelet, allé au cinéma au Grand Rex, bref beaucoup de super activités 🤗",
-      date: "Mars & Avril 2025", dateOrdre: new Date(2025, 1, 27),
-      photos: photosParLieu.Paris },
-
-    { nom: "Louvre", lat: 48.8611473, lng: 2.3380277, categorie: "balade",
-      description: "On a dansé le rock ensemble 🤘. Et c'était une belle soirée ensemble",
-      date: "Juin 2023", dateOrdre: new Date(2025, 2, 10),
-      photos: photosParLieu.Louvre },
-
-    { nom: "Bezons", lat: 48.9269531, lng: 2.2074624, categorie: "maison",
-      description: "Le plus gros coup de stress ever pour toi 😂. On y a aussi passé une soirée où tu révisais à 3 h du mat👀😂. Et il y a pas longtemps tu as même rencontré ma mère ici 😮",
-      date: "Intemporel", dateOrdre: new Date(2025, 3, 1),
-      photos: [] },
-
-    { nom: "Fontaine des Innocents", lat: 48.86066818237305, lng: 2.3480160236358643, categorie: "balade",
-      description: "Notre point de RDV pour marcher sur Paris :)",
-      date: "Mars 2025", dateOrdre: new Date(2025, 1, 26),
-      photos: photosParLieu["Fontaine des Innocents"] },
-
-    { nom: "Karting", lat: 49.103879, lng: 2.0366313, categorie: "activité",
-      description: "Petit karting tranquillou. La première vraie rencontre d'Adrien et Olivia aussi.",
-      date: "Aout 2026", dateOrdre: new Date(2026, 6, 1),
-      photos: photosParLieu.Karting },
-
-    { nom: "Vidéo des pets", lat: 62.25322497404464, lng: 25.702218017155563, categorie: "pet",
-      description: "Moment très marquant pris en vidéo et qui restera hilarant à jamais",
-      date: "Mai 2026", dateOrdre: new Date(2025, 4, 17),
-      photos: [] },
-
-    { nom: "Fuji", lat: 48.7916328, lng: 2.5133038, categorie: "resto",
-      description: "Notre sushi préf de Saint-Maur, une valeur sûre finalement ! (sauf quand tu te sens mal après 😞)",
-      date: "Indémodable", dateOrdre: new Date(2025, 7, 1),
-      photos: [] },
-
-    { nom: "Bowling", lat: 48.856863531656, lng: 2.354372359918173, categorie: "activité",
-      description: "Notre première activité tous les deux !! Suivi d'une balade sur Paris et d'un gros tunnel d'Eugénie sur la politique 😂",
-      date: "Février 2025", dateOrdre: new Date(2025, 1, 21),
-      photos: [] },
-
-    { nom: "Aquarium", lat: 48.86232554577809, lng: 2.29094978806828, categorie: "activité",
-      description: "Dans nos premières activités. On avait galéré à trouver l'entrée et on a surtout trouvé un poisson qui pouvait remplacer nos gifs de poissons rouges. Malheureusement ou heureusement on ne l'utilise plus 😂",
-      date: "Mars 2025", dateOrdre: new Date(2025, 2, 4),
-      photos: photosParLieu.Aquarium },
-
-    { nom: "Appart de Champigny", lat: 48.8123457, lng: 2.5093782, categorie: "amour",
-      description: "Notre endroit tranquille pour se retrouver sans être dérangé. L'endroit où on s'est mis en couple ❤️ et le premier bisou 👀 Je t'aime ❤️❤️❤️ (petite photos dossiers en kdo)",
-      date: "Décembre 2025", dateOrdre: new Date(2025, 11, 12),
-      photos: photosParLieu.Champigny },
-
-    { nom: "Jyvaskyla", lat: 62.241672, lng: 25.7495806, categorie: "voyage",
-      description: "Notre premier voyage ensemble ! Tellement on ne peut pas être séparé que j'ai dû venir deux fois 👀 Les deux fois étaient géniales et on en ressort avec plein de souvenirs et de photos 🤗 (peut-être qu'un jour je t'entendrai parler anglais 😂)",
-      date: "Avril & Mai 2025", dateOrdre: new Date(2025, 3, 15),
-      photos: photosParLieu.Jyvaskyla },
-
-    { nom: "Lac de Jyvaskyla", lat: 62.25114754781425, lng: 25.72139411775907, categorie: "nature",
-      description: "Endroit où tu as failli perdre tes pieds, mais c'est ok c'était un bon moment. Et on a fait de belles balades et de belles photos👀",
-      date: "Avril 2025", dateOrdre: new Date(2025, 3, 16),
-      photos: photosParLieu.Lac },
-
-    { nom: "La Défense", lat: 48.890106201171875, lng: 2.237318515777588, categorie: "shopping",
-      description: "Là où tu connais toutes les boutiques plus que moi alors que ça fait 17 ans que je vis là 😂. Mais on est sacrément efficace dans les magasins en tout cas. ",
-      date: "Toute periode", dateOrdre: new Date(2026, 4, 1),
-      photos: photosParLieu.Defense },
-
-    { nom: "Le Sola", lat: 48.89030075073242, lng: 2.237520217895508, categorie: "resto",
-      description: "Notre petit resto quand on fait des dates à La Défense. Les gens à côté écoutent nos discussions mais on a appris à s'en foutre. Par contre ce qu'on n'a pas appris c'est à bien dire le nom des plats (surtout toi 😂)",
-      date: "Indémodable", dateOrdre: new Date(2026, 5, 1),
-      photos: [] },
-
-    { nom: "Sushi Tokyo", lat: 48.8979547, lng: 2.2362167, categorie: "resto",
-      description: "Notre japonais préféré à La Défense (c'est pratique il est près). Ils doivent nous connaître par cœur. 'Deux menus étudiants svp' 😂",
-      date: "Indémodable", dateOrdre: new Date(2026, 4, 10),
-      photos: [] },
-
-    { nom: "Chez moi courbevoie", lat: 48.897666931152344, lng: 2.235090732574463, categorie: "maison",
-      description: "Un des endroits où j'habite où on a passé pas mal de temps et c'est pas près de changer 👀 c'est souvent le bordel quand tu viens mais j'assume 😂 et de toute façon on n'a pas d'yeux pour ça mais pour autre chose. 👀",
-      date: "encore la pour longtemps", dateOrdre: new Date(2026, 0, 1),
-      photos: photosParLieu.Courbevoie },
-
-    { nom: "Chez toi", lat: 48.803279876708984, lng: 2.507655382156372, categorie: "maison",
-      description: "Pas grand-chose à dire à part que c'est trop bien de pouvoir passer plusieurs jours avec toi là-bas 👀 (et trop mimi la Elfie)",
-      date: "intemporel", dateOrdre: new Date(2026, 7, 1),
-      photos: photosParLieu["Chez toi"] },
-
-    { nom: "BDM", lat: 48.80939140743179, lng: 2.51128620160308, categorie: "nature",
-      description: "Personne à part nous deux dit 'BDM' mais c'est ok. Endroit où on a fait de longues balades très sympas. On a aussi le banc caché et devant la maison qu'on aime bien, c'est nos petits endroits à nous :) Enfin bref plein de coins sympas et de bons souvenirs. Et c'est pas près de s'arrêter. ",
-      date: "depuis longtemps et pour longtemps", dateOrdre: new Date(2026, 4, 2),
-      photos: photosParLieu.BDM },
-
-    { nom: "Paddle", lat: 48.798673871318286, lng: 2.5231959228785428, categorie: "eau",
-      description: "On peut passer des heures à faire du paddle où on a notre petit coin secret 🤫",
-      date: "depuis longtemps et pour longtemps", dateOrdre: new Date(2026, 5, 2),
-      photos: photosParLieu.Paddle },
-
-    { nom: "Musee de l'illusion", lat: 48.863285064697266, lng: 2.3501193523406982, categorie: "activité",
-      description: "Notre deuxième activité que tous les deux, toujours dégoûté de pas avoir filmé l'illusion sur le mur qui nous avait cassé le cerveau 😂",
-      date: "depuis longtemps et pour longtemps", dateOrdre: new Date(2025, 2, 2),
-      photos: photosParLieu.Musee },
-
-    { nom: "Chez Cédric", lat: 48.7944025, lng: 2.5130777, categorie: "amour",
-      description: "Première fois qu'on s'est rencontré à l'anniversaire de Cédric et depuis on s'est plus jamais lâché 👀",
-      date: "Mars 2024", dateOrdre: new Date(2025, 1, 15),
-      photos: photosParLieu.Cedric }
-  ];
 
   const lieuxTries = [...lieux].sort((a, b) => a.dateOrdre - b.dateOrdre);
 
@@ -657,6 +1034,10 @@ Joyeux anniversaire 💕</p>
         <p>${lieu.description}</p>
         <div class="popup-photos">${photosHtml}</div>
         <div class="popup-date">${lieu.date}</div>
+        <div class="popup-actions">
+          <button class="popup-btn-modifier" onclick="ouvrirFormulaireModification('${lieu.id}')">✏️ Modifier</button>
+          <button class="popup-btn-supprimer" onclick="demanderSuppression('${lieu.id}')">🗑️ Supprimer</button>
+        </div>
       </div>
     `;
 
@@ -748,7 +1129,7 @@ Joyeux anniversaire 💕</p>
     histoireSuivantBtn.textContent = (histoireIndex >= lieuxTries.length - 1) ? 'Terminer' : 'Suivant →';
   }
 
-  function etapeSuivanteHistoire() {
+  window.etapeSuivanteHistoire = function etapeSuivanteHistoire() {
     if (histoireIndex >= lieuxTries.length - 1) {
       quitterModeHistoire();
       return;
@@ -757,7 +1138,7 @@ Joyeux anniversaire 💕</p>
     afficherEtapeHistoire();
   }
 
-  function quitterModeHistoire() {
+  window.quitterModeHistoire = function quitterModeHistoire() {
     controlesHistoire.classList.remove('visible');
     btnHistoire.disabled = false;
     map.closePopup();
@@ -781,7 +1162,7 @@ Joyeux anniversaire 💕</p>
     frise.appendChild(point);
   });
 
-  function openLightbox(src) {
+  window.openLightbox = function openLightbox(src) {
     document.getElementById('lightbox-img').src = src;
     document.getElementById('lightbox').style.display = 'flex';
   }
@@ -789,7 +1170,7 @@ Joyeux anniversaire 💕</p>
     document.getElementById('lightbox').style.display = 'none';
   });
 
-  function fermerAnniv() {
+  window.fermerAnniv = function fermerAnniv() {
     document.getElementById('overlay-anniv').style.display = 'none';
   }
 
@@ -813,6 +1194,236 @@ Joyeux anniversaire 💕</p>
   }
 
   lancerParticules();
+
+  // Expose à window ce dont les fonctions d'édition (hors de cette
+  // fonction) ont besoin : la carte, les lieux en mémoire, etc.
+  window.__carte = {
+    map, markers, markersParLieu, lieux, lieuxCollectionRef,
+    categories, creerIconeEmoji, urlPhoto,
+    rafraichirApresModification: async function () {
+      // Recharge tout depuis Firestore et reconstruit la carte/frise/filtres
+      // (façon la plus sûre de rester cohérent après un ajout/modif/suppr).
+      document.getElementById('map').remove();
+      const nouveauDiv = document.createElement('div');
+      nouveauDiv.id = 'map';
+      document.getElementById('frise-container').before(nouveauDiv);
+      const relance = document.getElementById('filtres');
+      relance.innerHTML = '';
+      const btnHistoireExistant = document.getElementById('bouton-histoire');
+      if (btnHistoireExistant) btnHistoireExistant.remove();
+      document.getElementById('frise').innerHTML = '';
+      const lieuxRafraichis = await chargerLieuxDepuisFirestore();
+      initialiserCarteEtInterface(lieuxRafraichis);
+    }
+  };
+
+  } // fin initialiserCarteEtInterface
+</script>
+
+<script type="module">
+  // ===================================================================
+  // GESTION DU FORMULAIRE — ajout / modification / suppression de lieux
+  // ===================================================================
+  import {
+    addDoc, updateDoc, deleteDoc, doc
+  } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+
+  const NOMS_MOIS = ["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
+
+  let modeEdition = false;   // false = ajout, true = modification
+  let lieuEnEditionId = null;
+  let modePlacementActif = false;
+
+  function ctx() { return window.__carte; }
+
+  function remplirCategories() {
+    const select = document.getElementById('f-categorie');
+    select.innerHTML = '';
+    Object.entries(ctx().categories).forEach(([cle, cat]) => {
+      if (cle === 'defaut') return;
+      const opt = document.createElement('option');
+      opt.value = cle;
+      opt.textContent = `${cat.emoji} ${cat.label}`;
+      select.appendChild(opt);
+    });
+  }
+
+  function viderChampsPhotos() {
+    document.getElementById('liste-photos-form').innerHTML = '';
+  }
+
+  window.ajouterChampPhoto = function (valeur = '') {
+    const conteneur = document.getElementById('liste-photos-form');
+    const ligne = document.createElement('div');
+    ligne.className = 'photo-ligne-form';
+    ligne.innerHTML = `
+      <input type="text" class="champ-photo-url" placeholder="https://raw.githubusercontent.com/..." value="${valeur.replace(/"/g, '&quot;')}">
+      <button type="button" onclick="this.parentElement.remove()">✕</button>
+    `;
+    conteneur.appendChild(ligne);
+  };
+
+  function recupererPhotosDuFormulaire() {
+    return Array.from(document.querySelectorAll('.champ-photo-url'))
+      .map(input => input.value.trim())
+      .filter(v => v.length > 0);
+  }
+
+  window.ouvrirFormulaireAjout = function () {
+    modeEdition = false;
+    lieuEnEditionId = null;
+    document.getElementById('titre-formulaire').textContent = 'Ajouter un lieu';
+    document.getElementById('form-lieu').reset();
+    remplirCategories();
+    viderChampsPhotos();
+    document.getElementById('erreur-formulaire').textContent = '';
+    document.getElementById('f-lat').value = '';
+    document.getElementById('f-lng').value = '';
+    const maintenant = new Date();
+    document.getElementById('f-mois').value = maintenant.getMonth();
+    document.getElementById('f-annee').value = maintenant.getFullYear();
+    document.getElementById('overlay-formulaire').classList.add('visible');
+  };
+
+  window.ouvrirFormulaireModification = function (lieuId) {
+    const lieu = ctx().lieux.find(l => l.id === lieuId);
+    if (!lieu) return;
+
+    modeEdition = true;
+    lieuEnEditionId = lieuId;
+    document.getElementById('titre-formulaire').textContent = 'Modifier ce lieu';
+    remplirCategories();
+    viderChampsPhotos();
+    document.getElementById('erreur-formulaire').textContent = '';
+
+    document.getElementById('f-nom').value = lieu.nom;
+    document.getElementById('f-categorie').value = lieu.categorie;
+    document.getElementById('f-lat').value = lieu.lat;
+    document.getElementById('f-lng').value = lieu.lng;
+    document.getElementById('f-description').value = lieu.description;
+
+    // On essaie de déduire si la date était "spéciale" (texte libre) ou standard
+    const dateOrdre = lieu.dateOrdre instanceof Date ? lieu.dateOrdre : new Date(lieu.dateOrdre);
+    const dateGeneree = `${NOMS_MOIS[dateOrdre.getMonth()]} ${dateOrdre.getFullYear()}`;
+    if (lieu.date === dateGeneree) {
+      document.getElementById('f-mois').value = dateOrdre.getMonth();
+      document.getElementById('f-annee').value = dateOrdre.getFullYear();
+      document.getElementById('f-date-speciale').value = '';
+    } else {
+      document.getElementById('f-mois').value = dateOrdre.getMonth();
+      document.getElementById('f-annee').value = dateOrdre.getFullYear();
+      document.getElementById('f-date-speciale').value = lieu.date;
+    }
+
+    (lieu.photos || []).forEach(url => window.ajouterChampPhoto(url));
+
+    ctx().map.closePopup();
+    document.getElementById('overlay-formulaire').classList.add('visible');
+  };
+
+  window.fermerFormulaire = function () {
+    document.getElementById('overlay-formulaire').classList.remove('visible');
+    if (modePlacementActif) desactiverModePlacement();
+  };
+
+  // ----- Placement sur la carte -----
+  function activerModePlacement() {
+    modePlacementActif = true;
+    document.getElementById('bouton-choisir-coord').classList.add('actif');
+    document.getElementById('mode-placement-info').classList.add('visible');
+    document.getElementById('overlay-formulaire').style.display = 'none';
+    ctx().map.once('click', (e) => {
+      document.getElementById('f-lat').value = e.latlng.lat.toFixed(6);
+      document.getElementById('f-lng').value = e.latlng.lng.toFixed(6);
+      desactiverModePlacement();
+      document.getElementById('overlay-formulaire').style.display = 'flex';
+    });
+  }
+
+  function desactiverModePlacement() {
+    modePlacementActif = false;
+    document.getElementById('bouton-choisir-coord').classList.remove('actif');
+    document.getElementById('mode-placement-info').classList.remove('visible');
+    document.getElementById('overlay-formulaire').style.display = 'flex';
+  }
+
+  window.basculerModePlacement = function () {
+    if (modePlacementActif) {
+      desactiverModePlacement();
+    } else {
+      activerModePlacement();
+    }
+  };
+
+  // ----- Enregistrement (ajout ou modification) -----
+  window.enregistrerLieu = async function () {
+    const erreurEl = document.getElementById('erreur-formulaire');
+    const boutonValider = document.getElementById('btn-form-valider');
+    erreurEl.textContent = '';
+
+    const nom = document.getElementById('f-nom').value.trim();
+    const categorie = document.getElementById('f-categorie').value;
+    const lat = parseFloat(document.getElementById('f-lat').value);
+    const lng = parseFloat(document.getElementById('f-lng').value);
+    const description = document.getElementById('f-description').value.trim();
+    const mois = parseInt(document.getElementById('f-mois').value, 10);
+    const annee = parseInt(document.getElementById('f-annee').value, 10);
+    const dateSpeciale = document.getElementById('f-date-speciale').value.trim();
+    const photosSaisies = recupererPhotosDuFormulaire();
+
+    if (!nom || !description || isNaN(lat) || isNaN(lng)) {
+      erreurEl.textContent = 'Merci de remplir le nom, la description et les coordonnées.';
+      return;
+    }
+    if (isNaN(annee)) {
+      erreurEl.textContent = 'Merci de renseigner une année (ou une date spéciale).';
+      return;
+    }
+
+    const dateOrdre = new Date(annee, mois, 1);
+    const dateAffichee = dateSpeciale.length > 0 ? dateSpeciale : `${NOMS_MOIS[mois]} ${annee}`;
+
+    const donnees = {
+      nom, categorie, lat, lng, description,
+      date: dateAffichee,
+      dateOrdreTimestamp: dateOrdre.getTime(),
+      photos: photosSaisies
+    };
+
+    boutonValider.disabled = true;
+    boutonValider.textContent = 'Enregistrement...';
+
+    try {
+      if (modeEdition && lieuEnEditionId) {
+        await updateDoc(doc(ctx().lieuxCollectionRef, lieuEnEditionId), donnees);
+      } else {
+        await addDoc(ctx().lieuxCollectionRef, donnees);
+      }
+      document.getElementById('overlay-formulaire').classList.remove('visible');
+      await ctx().rafraichirApresModification();
+    } catch (err) {
+      erreurEl.textContent = "Erreur lors de l'enregistrement : " + err.message;
+    } finally {
+      boutonValider.disabled = false;
+      boutonValider.textContent = 'Enregistrer';
+    }
+  };
+
+  // ----- Suppression -----
+  window.demanderSuppression = async function (lieuId) {
+    const lieu = ctx().lieux.find(l => l.id === lieuId);
+    if (!lieu) return;
+    const confirme = confirm(`Supprimer "${lieu.nom}" définitivement ?`);
+    if (!confirme) return;
+
+    try {
+      await deleteDoc(doc(ctx().lieuxCollectionRef, lieuId));
+      ctx().map.closePopup();
+      await ctx().rafraichirApresModification();
+    } catch (err) {
+      alert("Erreur lors de la suppression : " + err.message);
+    }
+  };
 </script>
 
 </body>
